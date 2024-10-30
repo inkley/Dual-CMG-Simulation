@@ -166,6 +166,11 @@ gyro.t      = 0.0127;               % m, (1/2")
 gyro.v      = pi*gyro.r^2*gyro.t;   % m^3
 gyro.m      = gyro.v *gyro.rho;     % kg    
 gyro.I      = 0.5*gyro.m*gyro.r^2;  % CMG flywheel inertia (uniform thin disc)  --> HOLDS [1/3x - 1/2x FW D]
+gyro.xa     = 0.75;                 % CMG aft payload CG distance, m
+gyro.xf     = 0.75;                 % CMG aft payload CG distance, m
+
+gyro.Ia     = gyro.I + gyro.m*gyro.xa^2;    % Parallel Axis Theorem - Aft Payload Adjustment
+gyro.If     = gyro.I + gyro.m*gyro.xf^2;    % Parallel Axis Theorem - Fwd Payload Adjustment
 
 % PD gains
 gains.Kpu   = 4;
