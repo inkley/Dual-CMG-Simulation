@@ -482,13 +482,15 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         
 %% CMG PROPERTIES
 % Define the range of radius and thickness
-radii       = linspace(0.0508, 0.0762, 100);     % 2 inches to 3 inches (in meters)
-thicknesses = linspace(0.00635, 0.0508, 100);    % 1/4 inch to 2 inches (in meters)
+radii       = linspace(0.0508, 0.0762, 20);     % 2 inches to 3 inches (in meters)
+thicknesses = linspace(0.00635, 0.0508, 20);    % 1/4 inch to 2 inches (in meters)
 
-% Preallocate matrices to store max Δɑ, ΔΩ, and energy input
-max_delta_alpha     = zeros(length(radii), length(thicknesses));
-max_delta_omega     = zeros(length(radii), length(thicknesses));
-energy_input_matrix = zeros(length(thicknesses), length(radii));
+% Preallocate matrices to store max Δɑ, ΔΩ, and input/output energies
+max_delta_alpha             = zeros(length(radii), length(thicknesses));
+max_delta_omega             = zeros(length(radii), length(thicknesses));
+energy_input_matrix         = zeros(length(radii), length(thicknesses));
+output_energy_roll_matrix   = zeros(length(radii), length(thicknesses));
+peak_output_energy_roll_matrix = zeros(length(radii), length(thicknesses));
 
 % Loop over the range of radii and thicknesses
 for i = 1:length(radii)
@@ -515,40 +517,42 @@ for i = 1:length(radii)
         max_delta_alpha(i, j) = max(abs(delta_alpha));  % Max change in alpha
         max_delta_omega(i, j) = max(abs(delta_omega));  % Max change in Omega
         
-        % Extract necessary parameters for energy input calculation
-        Omega = Y_OUT(1:end-1, 14);                   % Angular velocity
-        alpha_dot = diff(Y_OUT(:, 13)) ./ diff(T_OUT); % Deflection velocity
-        
-        % Compute instantaneous powers using tau_Omega and tau_alpha
-        P1 = Omega .* tau_Omega;        % Power from gyroscope angular velocity
-        P2 = alpha_dot .* tau_alpha;    % Power from deflection velocity
-        
+        % Extract necessary parameters for energy calculations
+        Omega       = Y_OUT(1:end-1, 14);                   % Angular velocity
+        alpha_dot   = diff(Y_OUT(:, 13)) ./ diff(T_OUT);    % Deflection velocity        
+        K           = tau_cmg.K;                            % Roll torque (from TORQUE.m)
+        p           = Y_OUT(1:end-1, 10);                   % Roll velocity
+
+        % Compute instantaneous roll power
+        P_roll = K .* p;
+
+        % Integrate over time to find total output energy in roll
+        E_out_roll = trapz(T_OUT(1:end-1), abs(P_roll));
+
+        % Find the maximum values of K and p
+        max_K = max(abs(K));
+        max_p = max(abs(p));        
+
+        % Calculate peak output energy based on maximum K and p
+        peak_output_energy_roll = max_K * max_p;
+
+        % Compute instantaneous powers for input energy calculation
+        P1 = Omega .* tau_Omega;               % Power from gyroscope angular velocity
+        P2 = alpha_dot .* tau_alpha;           % Power from deflection velocity
+
         % Integrate the absolute power to calculate the total energy input
         E_in = trapz(T_OUT(1:end-1), abs(P1)) + trapz(T_OUT(1:end-1), abs(P2));
         
         % Store the energy input in the matrix
-        energy_input_matrix(j, i) = E_in;
+        energy_input_matrix(i, j) = E_in;        
+
+        % Store the total output energy in roll in the matrix
+        output_energy_roll_matrix(i, j) = E_out_roll;
+
+        % Store the peak output energy in roll in a separate matrix
+        peak_output_energy_roll_matrix(i, j) = peak_output_energy_roll;
     end
 end
-
-% % Contour plot for maximum deflection angle change (Δɑ)
-% figure
-% contourf(radii, thicknesses, max_delta_alpha)
-% xlabel('Gyroscope Radius (m)')
-% ylabel('Gyroscope Thickness (m)')
-% title('Maximum Δɑ (°)')
-% colorbar
-% set(gca,'FontSize',16,'LineWidth',1.0)
-
-% % Contour plot for maximum angular velocity change (ΔΩ)
-% figure
-% log_levels = logspace(log10(min(max_delta_omega(:))), log10(max(max_delta_omega(:))), 20); % Logarithmic levels
-% contourf(radii, thicknesses, max_delta_omega, log_levels)
-% xlabel('Gyroscope Radius (m)')
-% ylabel('Gyroscope Thickness (m)')
-% title('Maximum ΔΩ (rad/s)')
-% colorbar
-% set(gca,'FontSize',16,'LineWidth',1.0)
 
 % Contour plot for energy input
 figure
@@ -556,5 +560,23 @@ contourf(radii, thicknesses, energy_input_matrix, 20)
 xlabel('Gyroscope Radius (m)')
 ylabel('Gyroscope Thickness (m)')
 title('CMG Energy Input (J)')
+colorbar
+set(gca, 'FontSize', 16, 'LineWidth', 1.0)
+
+% Plotting the total output energy in roll as a contour plot
+figure
+contourf(radii, thicknesses, output_energy_roll_matrix, 20)
+xlabel('Gyroscope Radius (m)')
+ylabel('Gyroscope Thickness (m)')
+title('CMG Total Output Energy in Roll (J)')
+colorbar
+set(gca, 'FontSize', 16, 'LineWidth', 1.0)
+
+% Plotting the peak output energy in roll as a contour plot
+figure
+contourf(radii, thicknesses, peak_output_energy_roll_matrix, 20)
+xlabel('Gyroscope Radius (m)')
+ylabel('Gyroscope Thickness (m)')
+title('CMG Peak Output Energy in Roll (J)')
 colorbar
 set(gca, 'FontSize', 16, 'LineWidth', 1.0)
