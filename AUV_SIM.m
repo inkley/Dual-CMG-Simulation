@@ -20,7 +20,7 @@ clc; clear; close all;
 tic         % Start simulaiton timer
 
 % SELECT SIM CASE
-ii = 0;     % 0 VFR, 1 FSV, 2 STM, 3 SPF                          
+ii = 0;     % Simulation case selector: 0 = Pure Roll, 1 = Forward Surge Velocity, etc.                          
 
 % Change result designation based on sim case
 manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/Working Results/';  % Work
@@ -42,12 +42,12 @@ manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/Working 
         state.psi   = 0;
         
         % Body-fixed states
-        state.u     = 0;
-        state.v     = 0;
-        state.w     = 0;
-        state.p     = 0;
-        state.q     = 0;
-        state.r     = 0; 
+        state.u     = 0;    % Surge velocity (m/s)
+        state.v     = 0;    % Sway velocity (m/s)
+        state.w     = 0;    % Heave velocity (m/s)
+        state.p     = 0;    % Roll rate (rad/s)
+        state.q     = 0;    % Pitch rate (rad/s)
+        state.r     = 0;    % Yaw rate (rad/s)
     end
 
     % %%%%% NOMINAL FORWARD SURGE VELOCITY %%%%%
@@ -126,44 +126,42 @@ manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/Working 
 
 %% GYROSCOPE STATES
 % AFT CMG (CMG #1)
-state.alpha1    = 0;                        % CMG deflection angle, rad (about zg)
-state.Omega1    = 10*pi;                    % Flywheel angular velocity, rad/s (300rpm)
-gyro1.r         = 0.0508;                   % m, (2") 
-gyro1.t         = 0.0127;                   % m, (1/2")
-gyro1.v         = pi*gyro1.r^2*gyro1.t;     % m^3
-gyro1.rho       = 7750;                     % Steel, kg/m^3
-gyro1.m         = gyro1.v *gyro1.rho;       % kg    
-gyro1.I         = 0.5*gyro1.m*gyro1.r^2;    % CMG flywheel inertia (uniform thin disc)  --> HOLDS [1/3x - 1/2x FW D]
+state.alpha1    = 0;                        % Initial deflection angle (rad)
+state.Omega1    = 10 * pi;                  % Flywheel angular velocity, rad/s (300 rpm)
+gyro1.r         = 0.0508;                   % Flywheel radius (m, 2 inches)
+gyro1.t         = 0.0127;                   % Flywheel thickness (m, 1/2 inch)
+gyro1.v         = pi * gyro1.r^2 * gyro1.t; % Flywheel volume (m^3)
+gyro1.rho       = 7750;                     % Material density (kg/m^3, steel)
+gyro1.m         = gyro1.v * gyro1.rho;      % Flywheel mass (kg)
+gyro1.I         = 0.5 * gyro1.m * gyro1.r^2; % Moment of inertia (uniform thin disc)
 
 % FWD CMG (CMG #2)
-state.alpha2    = 0;                        % CMG deflection angle, rad (about zg)
-state.Omega2    = 10*pi;                    % Flywheel angular velocity, rad/s (300rpm)
-gyro2.r         = 0.0508;                   % m, (2") 
-gyro2.t         = 0.0127;                   % m, (1/2")
-gyro2.v         = pi*gyro2.r^2*gyro2.t;     % m^3
-gyro2.rho       = 7750;                     % Steel, kg/m^3
-gyro2.m         = gyro2.v *gyro2.rho;       % kg    
-gyro2.I         = 0.5*gyro2.m*gyro2.r^2;    % CMG flywheel inertia (uniform thin disc)  --> HOLDS [1/3x - 1/2x FW D]
+state.alpha2    = 0;                        % Initial deflection angle (rad)
+state.Omega2    = 10 * pi;                  % Flywheel angular velocity, rad/s (300 rpm)
+gyro2.r         = 0.0508;                   % Flywheel radius (m, 2 inches)
+gyro2.t         = 0.0127;                   % Flywheel thickness (m, 1/2 inch)
+gyro2.v         = pi * gyro2.r^2 * gyro2.t; % Flywheel volume (m^3)
+gyro2.rho       = 7750;                     % Material density (kg/m^3, steel)
+gyro2.m         = gyro2.v * gyro2.rho;      % Flywheel mass (kg)
+gyro2.I         = 0.5 * gyro2.m * gyro2.r^2; % Moment of inertia (uniform thin disc)
 
 %% STATE VECTOR 
-%state_cell =
-%{'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha_1','\Omega_1','\alpha_2','\Omega_2'};
 state_vec   =   [state.x;state.y;state.z;state.phi;state.theta;state.psi;
                 state.u;state.v;state.w;state.p;state.q;state.r;state.alpha1;
                 state.Omega1;state.alpha2;state.Omega2];
 
 %% INPUTS
-% Desired Euler Angles
-d.phi       = pi/2;                 % Desired Phi   - Roll Euler Angle, rad
-d.theta     = 0;                    % Desired Theta - Pitch Euler Angle, rad
-d.psi       = 0;                    % Desired Psi   - Yaw Euler Angle, rad
+% Desired Euler angles (roll, pitch, yaw)
+d.phi   = pi/2;                     % Target roll angle (rad)
+d.theta = 0;                        % Target pitch angle (rad)
+d.psi   = 0;                        % Target yaw angle (rad)
 
 % AUV properties
-auv.W       = 2.99E02;              % Vehicle weight (REMUS 100), N
-auv.g       = 9.81;                 % m/s^2
-auv.m       = auv.W/auv.g;          % kg, results converged with m = 3kg!
-auv.D       = 0.14732;              % m, IVER 3EP Outer Tube Diameter (5.8")
-auv.d       = auv.D - 0.0127;       % m, (assumed) Inner Tube Diameter (quarter inch thickness, -0.5")
+auv.W       = 2.99E02;              % Vehicle weight (N)
+auv.g       = 9.81;                 % Gravitational acceleration (m/s^2)
+auv.m       = auv.W / auv.g;        % Mass (kg)
+auv.D       = 0.14732;              % Vehicle outer diameter (m, IVER 3EP)
+auv.d       = auv.D - 0.0127;       % Inner tube diameter (m)
 
 % PD gains 
 gains.Kpu   = 4;                    % Proportional gain for surge (forward/backward) control
@@ -173,11 +171,11 @@ gains.Kdp   = 1.5;                  % Derivative gain for roll control
 gains.Kpr   = 30;                   % Proportional gain for yaw control
 gains.Kdr   = 14;                   % Derivative gain for yaw control
 
-% Loop frequencies 
-loop.cycleT = 3;                    % s
-loop.fc     = 1/loop.cycleT;        % fc = 0.33 Hz 
+% Control loop parameters
+loop.cycleT = 3;                    % Control cycle duration (s)
+loop.fc     = 1/loop.cycleT;        % Control cycle frequency (fc = 0.33 Hz)
 
-% Params
+% Physical parameters for the AUV
 params.m    = auv.m;                % Vehicle dry mass      (kg)
 params.Ix   = 1.77E-01;             % Vehicle Ixx           (kgm^2)
 params.Iy   = 3.45;                 % Vehicle Iyy           (kgm^2)
@@ -186,19 +184,27 @@ params.xg   = 0;                    % Cg x-position         (m)
 params.yg   = 0;                    % Cg y-position         (m)
 params.zg   = 0;                    % Cg z-position         (m)
 
-%%  AUV SIMULATION
-%[Etadot] = CONTROL(0,state_vec,gains,gyro1,gyro2,auv,params,d,loop);  % Debug fn. 
-[T_OUT, Y_OUT] = ode45(@CONTROL, [0 loop.cycleT], state_vec, [], gains, gyro1, gyro2, auv, params, d, loop);      
+%% AUV SIMULATION
+% Run the simulation for the specified control cycle duration
+% Initial testing can be done with the CONTROL function for debugging
+% [Etadot] = CONTROL(0, state_vec, gains, gyro1, gyro2, auv, params, d, loop);  % Debug function
 
-% CMG TORQUE CALCS
-[tau_cmg1,tau_cmg2] = TORQUE(gyro1,gyro2,T_OUT,Y_OUT);
-t                   = T_OUT(1:length(T_OUT)-1,:);
+% Run the ODE solver for the control cycle, obtaining time and state outputs
+[T_OUT, Y_OUT] = ode45(@CONTROL, [0 loop.cycleT], state_vec, [], gains, gyro1, gyro2, auv, params, d, loop);
+
+% Calculate torques generated by each CMG
+[tau_cmg1, tau_cmg2] = TORQUE(gyro1, gyro2, T_OUT, Y_OUT);
+t = T_OUT(1:end-1, :);  % Exclude the last point for plotting consistency
 toc
 
 %% PLOTS
+% Cell array with state variable labels for plots
 state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha_1','\Omega_1','\alpha_2','\Omega_2'};
 
-% All states  
+% Plotting section: Generates and saves figures of simulation outputs
+% Each figure provides insight into different state variables and control outputs
+
+% Plot all state variables
     figure 
     for kk = 1:width(Y_OUT)
         plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
@@ -218,6 +224,11 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         %savefig(strNameARC)
         strNameMAN = append(manpath,resultcase);
         print(gcf,'-depsc',strNameMAN)
+
+% Additional plots are similarly created for different categories of state variables
+% Generalized Position Vector, Velocity Vector, Gyroscope States, etc.
+% Specific plotting details for Euler angles, roll convergence, and CMG torques follow.
+% Each set of plots is saved with a case-specific filename for organized results storage.
 
 % Generalized Position Vector, eta
     figure 
@@ -417,7 +428,8 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         %savefig(strNameARC)
         strNameMAN = append(manpathcase,resultcase);
         print(gcf,'-depsc',strNameMAN)
-% AFT CMG Torques
+
+% AFT CMG (CMG #1) Torques
     % overlay
     figure 
     plot(t,tau_cmg1.K,'LineWidth',2)     % K
@@ -427,7 +439,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         grid on; grid minor
         xlabel('Control Cycle Time (s)')
         ylabel('Torque (N•m)')
-        title('All CMG Torques')
+        title('Aft CMG Torques')
         legend('K','M','N')
         set(gca,'FontSize',16,'LineWidth',1.0)
     
@@ -445,7 +457,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
     plot(t,tau_cmg1.K,'LineWidth',2)   
     hold on
         grid on; grid minor
-        title('All CMG Torques (N•m)')
+        title('Aft CMG Torques (N•m)')
         ylabel('K')
         set(gca,'FontSize',16,'LineWidth',1.0)
     subplot(3,1,2)  % M
@@ -472,7 +484,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         strNameMAN = append(manpathcase,resultcase);
         print(gcf,'-depsc',strNameMAN) 
 
-% FWD CMG Torques
+% FWD CMG (CMG #2) Torques
     % overlay
     figure 
     plot(t,tau_cmg2.K,'LineWidth',2)     % K
@@ -482,7 +494,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         grid on; grid minor
         xlabel('Control Cycle Time (s)')
         ylabel('Torque (N•m)')
-        title('All CMG Torques')
+        title('Fwd CMG Torques')
         legend('K','M','N')
         set(gca,'FontSize',16,'LineWidth',1.0)
     
@@ -500,7 +512,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
     plot(t,tau_cmg2.K,'LineWidth',2)   
     hold on
         grid on; grid minor
-        title('All CMG Torques (N•m)')
+        title('Fwd CMG Torques (N•m)')
         ylabel('K')
         set(gca,'FontSize',16,'LineWidth',1.0)
     subplot(3,1,2)  % M
@@ -533,80 +545,94 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
 % thicknesses = linspace(0.00635, 0.0508, 20);    % 1/4 inch to 2 inches (in meters)
 % 
 % % Preallocate matrices to store max Δɑ, ΔΩ, and input/output energies
-% max_delta_alpha                 = zeros(length(radii), length(thicknesses));
-% max_delta_omega                 = zeros(length(radii), length(thicknesses));
-% energy_input_matrix             = zeros(length(radii), length(thicknesses));
+% max_delta_alpha1                = zeros(length(radii), length(thicknesses));
+% max_delta_omega1                = zeros(length(radii), length(thicknesses));
+% max_delta_alpha2                = zeros(length(radii), length(thicknesses));
+% max_delta_omega2                = zeros(length(radii), length(thicknesses));
+% total_energy_input_matrix       = zeros(length(radii), length(thicknesses));
 % output_energy_roll_matrix       = zeros(length(radii), length(thicknesses));
 % peak_output_energy_roll_matrix  = zeros(length(radii), length(thicknesses));
 % 
-% % Loop over the range of radii and thicknesses
+% % Loop over the range of radii and thicknesses for both gyros
 % for i = 1:length(radii)
 %     for j = 1:length(thicknesses)
 % 
-%         % Set the gyroscope parameters for this iteration
-%         gyro.r = radii(i);
-%         gyro.t = thicknesses(j);
+%         % Set gyroscope parameters for both gyros
+%         gyro1.r = radii(i);
+%         gyro1.t = thicknesses(j);
+%         gyro2.r = radii(i);
+%         gyro2.t = thicknesses(j);
 % 
-%         % Recalculate the mass and inertia of the gyroscope
-%         gyro.v = pi * gyro.r^2 * gyro.t;   % Volume of flywheel
-%         gyro.m = gyro.v * gyro.rho;        % Mass of flywheel
-%         gyro.I = 0.5 * gyro.m * gyro.r^2;  % Moment of inertia (thin disc)
+%         % Recalculate mass and inertia of both gyroscopes
+%         gyro1.v = pi * gyro1.r^2 * gyro1.t;     % Volume of flywheel
+%         gyro1.m = gyro1.v * gyro1.rho;          % Mass of flywheel
+%         gyro1.I = 0.5 * gyro1.m * gyro1.r^2;    % Moment of inertia (thin disc)
 % 
-%         % Run the simulation
-%         [T_OUT, Y_OUT] = ode45(@CONTROL, [0 loop.cycleT], state_vec, [], gains, gyro, auv, params, d, loop);
-%         [tau_cmg, tau_Omega, tau_alpha] = TORQUE(gyro, T_OUT, Y_OUT);
+%         gyro2.v = pi * gyro2.r^2 * gyro2.t;
+%         gyro2.m = gyro2.v * gyro2.rho;
+%         gyro2.I = 0.5 * gyro2.m * gyro2.r^2;
 % 
-%         % Extract Δɑ and ΔΩ
-%         delta_alpha = diff(Y_OUT(:, 13));  % Deflection angle changes
-%         delta_omega = diff(Y_OUT(:, 14));  % Angular velocity changes
+%         % Run the simulation for current radius and thickness
+%         [T_OUT, Y_OUT] = ode45(@CONTROL, [0 loop.cycleT], state_vec, [], gains, gyro1, gyro2, auv, params, d, loop);
+%         [tau_cmg1, tau_cmg2] = TORQUE(gyro1, gyro2, T_OUT, Y_OUT);
 % 
-%         % Store the max values in the matrices
-%         max_delta_alpha(i, j) = max(abs(delta_alpha));  % Max change in alpha
-%         max_delta_omega(i, j) = max(abs(delta_omega));  % Max change in Omega
+%         % Extract Δɑ and ΔΩ for both gyroscopes
+%         delta_alpha1 = diff(Y_OUT(:, 13));  % Deflection angle changes for aft CMG
+%         delta_omega1 = diff(Y_OUT(:, 14));  % Angular velocity changes for aft CMG
+%         delta_alpha2 = diff(Y_OUT(:, 15));  % Deflection angle changes for fwd CMG
+%         delta_omega2 = diff(Y_OUT(:, 16));  % Angular velocity changes for fwd CMG
+% 
+%         % Store the max values in the matrices for both CMGs
+%         max_delta_alpha1(i, j) = max(abs(delta_alpha1));  % Max change in alpha for aft CMG
+%         max_delta_omega1(i, j) = max(abs(delta_omega1));  % Max change in Omega for aft CMG
+%         max_delta_alpha2(i, j) = max(abs(delta_alpha2));  % Max change in alpha for fwd CMG
+%         max_delta_omega2(i, j) = max(abs(delta_omega2));  % Max change in Omega for fwd CMG
 % 
 %         % Extract necessary parameters for energy calculations
-%         Omega       = Y_OUT(1:end-1, 14);                   % Angular velocity
-%         alpha_dot   = diff(Y_OUT(:, 13)) ./ diff(T_OUT);    % Deflection velocity        
-%         K           = tau_cmg.K;                            % Roll torque (from TORQUE.m)
-%         p           = Y_OUT(1:end-1, 10);                   % Roll velocity
+%         Omega1       = Y_OUT(1:end-1, 14);                % Angular velocity for aft CMG
+%         Omega2       = Y_OUT(1:end-1, 16);                % Angular velocity for fwd CMG
+%         alpha_dot1   = diff(Y_OUT(:, 13)) ./ diff(T_OUT); % Deflection velocity for aft CMG        
+%         alpha_dot2   = diff(Y_OUT(:, 15)) ./ diff(T_OUT); % Deflection velocity for fwd CMG        
+%         K_total      = tau_cmg1.K + tau_cmg2.K;           % Total roll torque from both CMGs
+%         p            = Y_OUT(1:end-1, 10);                % Roll velocity
 % 
 %         % Compute instantaneous roll power
-%         P_roll = K .* p;
+%         P_roll = K_total .* p;
 % 
 %         % Integrate over time to find total output energy in roll
 %         E_out_roll = trapz(T_OUT(1:end-1), abs(P_roll));
 % 
 %         % Find the maximum values of K and p
-%         max_K = max(abs(K));
+%         max_K = max(abs(K_total));
 %         max_p = max(abs(p));        
 % 
 %         % Calculate peak output energy based on maximum K and p
 %         peak_output_energy_roll = max_K * max_p;
 % 
 %         % Compute instantaneous powers for input energy calculation
-%         P1 = Omega .* tau_Omega;               % Power from gyroscope angular velocity
-%         P2 = alpha_dot .* tau_alpha;           % Power from deflection velocity
+%         [tau_Omega1, tau_alpha1, tau_Omega2, tau_alpha2] = deal(tau_cmg1.K, tau_cmg1.M, tau_cmg2.K, tau_cmg2.M);
+%         P1 = Omega1 .* tau_Omega1;               % Power from aft gyroscope angular velocity
+%         P2 = alpha_dot1 .* tau_alpha1;           % Power from aft deflection velocity
+%         P3 = Omega2 .* tau_Omega2;               % Power from fwd gyroscope angular velocity
+%         P4 = alpha_dot2 .* tau_alpha2;           % Power from fwd deflection velocity
 % 
 %         % Integrate the absolute power to calculate the total energy input
-%         E_in = trapz(T_OUT(1:end-1), abs(P1)) + trapz(T_OUT(1:end-1), abs(P2));
+%         E_in = trapz(T_OUT(1:end-1), abs(P1)) + trapz(T_OUT(1:end-1), abs(P2)) + ...
+%                trapz(T_OUT(1:end-1), abs(P3)) + trapz(T_OUT(1:end-1), abs(P4));
 % 
 %         % Store the energy input in the matrix
-%         energy_input_matrix(i, j) = E_in;        
-% 
-%         % Store the total output energy in roll in the matrix
+%         total_energy_input_matrix(i, j) = E_in;        
 %         output_energy_roll_matrix(i, j) = E_out_roll;
-% 
-%         % Store the peak output energy in roll in a separate matrix
 %         peak_output_energy_roll_matrix(i, j) = peak_output_energy_roll;
 %     end
 % end
 % 
-% % Contour plot for energy input
+% % Contour plot for total energy input
 % figure
-% contourf(radii, thicknesses, energy_input_matrix, 20) 
+% contourf(radii, thicknesses, total_energy_input_matrix, 20) 
 % xlabel('Gyroscope Radius (m)')
 % ylabel('Gyroscope Thickness (m)')
-% title('CMG Energy Input (J)')
+% title('Total CMG Energy Input (J)')
 % colorbar
 % set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 % 
@@ -615,7 +641,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
 % contourf(radii, thicknesses, output_energy_roll_matrix, 20)
 % xlabel('Gyroscope Radius (m)')
 % ylabel('Gyroscope Thickness (m)')
-% title('CMG Total Output Energy in Roll (J)')
+% title('Total Output Energy in Roll (J)')
 % colorbar
 % set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 % 
@@ -624,6 +650,6 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
 % contourf(radii, thicknesses, peak_output_energy_roll_matrix, 20)
 % xlabel('Gyroscope Radius (m)')
 % ylabel('Gyroscope Thickness (m)')
-% title('CMG Peak Output Energy in Roll (J)')
+% title('Peak Output Energy in Roll (J)')
 % colorbar
 % set(gca, 'FontSize', 16, 'LineWidth', 1.0)
