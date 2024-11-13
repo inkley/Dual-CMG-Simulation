@@ -1,4 +1,4 @@
-function [Etadot] = CONTROL(t,state,gains,gyro,auv,params,d,loop)
+function [Etadot] = CONTROL(t,state,gains,gyro1,gyro2,auv,params,d,loop)
 % CONTROL.m
 % This script implements the control logic for the Autonomous Underwater
 % Vehicle (AUV). The control system is responsible for calculating the
@@ -33,7 +33,8 @@ phi_d       = d.phi;
 Kpp         = gains.Kpp;     
 Kdp         = gains.Kdp;
 
-I           = gyro.I;
+I1          = gyro1.I;
+I2          = gyro2.I;
 
 phi         = state(4);
 theta       = state(5);
@@ -41,8 +42,10 @@ p           = state(10);
 q           = state(11);
 r           = state(12);
 
-alpha       = state(13);    
-Omega       = state(14);    
+alpha1      = state(13);    
+Omega1      = state(14);
+alpha2      = state(15);    
+Omega2      = state(16); 
 
 T           = loop.cycleT;
 
@@ -80,14 +83,16 @@ tauC.MD     = 0;    % Desired pitch moment
 tauC.ND     = 0;    % Desired yaw moment 
 
 %% CMG CONTROLS
-% omegadot
-contpar.Omegadot    = (tauC.MD - tan(alpha)*tauC.KD)/(I*(((sin(alpha))^2)/(cos(alpha)))+I*cos(alpha));
+% AFT CMG (CMG #1)
+contpar.Omegadot1   = (tauC.MD - tan(alpha1)*tauC.KD)/(I1*(((sin(alpha1))^2)/(cos(alpha1)))+I1*cos(alpha1));
+contpar.alphadot1   = (tauC.KD + I1*sin(alpha1)*contpar.Omegadot1 + I1*cos(alpha1)*Omega1*r)/(-I1*cos(alpha1)*Omega1);   
 
-% alphadot
-contpar.alphadot    = (tauC.KD + I*sin(alpha)*contpar.Omegadot + I*cos(alpha)*Omega*r)/(-I*cos(alpha)*Omega);   
+% FWD CMG (CMG #2)
+contpar.Omegadot2   = (tauC.MD - tan(alpha2)*tauC.KD)/(I2*(((sin(alpha2))^2)/(cos(alpha2)))+I2*cos(alpha2));
+contpar.alphadot2   = (tauC.KD + I2*sin(alpha2)*contpar.Omegadot2 + I2*cos(alpha2)*Omega2*r)/(-I2*cos(alpha2)*Omega2);
 
 % Calculate cmg torques
-[tau_cmg]           = CMG(gyro,contpar,state); 
+[tau_cmg1,tau_cmg2] = CMG(gyro1,gyro2,contpar,state); 
 
 % Call vehicle dynamics
-[Etadot]            = REMUS(t,auv,contpar,params,state,tauC,tau_cmg);
+[Etadot]            = REMUS(t,auv,contpar,params,state,tauC,tau_cmg1,tau_cmg2);

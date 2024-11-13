@@ -1,4 +1,4 @@
-function [Etadot,tau] = REMUS(~,auv,contpar,params,state,tauC,tau_cmg)
+function [Etadot,tau] = REMUS(~,auv,contpar,params,state,tauC,tau_cmg1,tau_cmg2)
 % REMUS.m
 % This script models the dynamics of the REMUS (Remote Environmental
 % Monitoring UnitS) underwater vehicle. The script calculates the
@@ -27,8 +27,10 @@ function [Etadot,tau] = REMUS(~,auv,contpar,params,state,tauC,tau_cmg)
 %% Variable pass-throughs
 m           = auv.m;
 
-alphadot    = contpar.alphadot;
-Omegadot    = contpar.Omegadot;
+alphadot1   = contpar.alphadot1;
+Omegadot1   = contpar.Omegadot1;
+alphadot2   = contpar.alphadot2;
+Omegadot2   = contpar.Omegadot2;
 
 phi         = state(4);
 theta       = state(5);
@@ -111,9 +113,9 @@ Nhyd        = Nvv*v*abs(v) + Nrr*r*abs(r) + Nur*u*r + Nwp*w*p + Npq*p*q + Nuv*u*
 X           = XHS + Xhyd + tauC.XD;
 Y           = YHS + Yhyd + tauC.YD;
 Z           = ZHS + Zhyd + tauC.ZD;
-K           = KHS + Khyd + tauC.KD + tau_cmg.K; 
-M           = MHS + Mhyd + tauC.MD + tau_cmg.M;
-N           = NHS + Nhyd + tauC.ND + tau_cmg.N;
+K           = KHS + Khyd + tauC.KD + tau_cmg1.K + tau_cmg2.K; 
+M           = MHS + Mhyd + tauC.MD + tau_cmg1.M + tau_cmg2.M;
+N           = NHS + Nhyd + tauC.ND + tau_cmg1.N + tau_cmg2.N;
 
 tau         = [X;Y;Z;K;M;N];
 
@@ -149,4 +151,4 @@ nu          = [u;v;w;p;q;r];
 etadot      = [J1,zeros(3,3);zeros(3,3),J2]*nu;
 
 % All together Now
-Etadot      = [etadot;nudot;alphadot;Omegadot];  
+Etadot      = [etadot;nudot;alphadot1;Omegadot1;alphadot2;Omegadot2];  
