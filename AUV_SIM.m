@@ -204,95 +204,96 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
 % Plotting section: Generates and saves figures of simulation outputs
 % Each figure provides insight into different state variables and control outputs
 
-% Plot all state variables
-    figure 
-    for kk = 1:width(Y_OUT)
-        plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
-        hold on; 
-        legend('-DynamicLegend','Location','eastoutside')
-    end
-        grid on; grid minor
-        xlabel('Control Cycle Time (s)')
-        ylabel('Magnitude')
-        title('All Simulation States')
-        set(gca,'FontSize',16,'LineWidth',1.0)
-
-        resultcase = 'ARC_ALL';
-        strNameARC = append(simcase,resultcase);
-        print(gcf,'-depsc',strNameARC)
-        print(gcf,'-dpng',strNameARC)
-        %savefig(strNameARC)
-        strNameMAN = append(manpath,resultcase);
-        print(gcf,'-depsc',strNameMAN)
+% % Plot all state variables
+%     figure 
+%     for kk = 1:width(Y_OUT)
+%         plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
+%         hold on; 
+%         legend('-DynamicLegend','Location','eastoutside')
+%     end
+%         grid on; grid minor
+%         xlabel('Control Cycle Time (s)')
+%         ylabel('Magnitude')
+%         title('All Simulation States')
+%         set(gca,'FontSize',16,'LineWidth',1.0)
+% 
+%         resultcase = 'ARC_ALL';
+%         strNameARC = append(simcase,resultcase);
+%         print(gcf,'-depsc',strNameARC)
+%         print(gcf,'-dpng',strNameARC)
+%         %savefig(strNameARC)
+%         strNameMAN = append(manpath,resultcase);
+%         print(gcf,'-depsc',strNameMAN)
 
 % Additional plots are similarly created for different categories of state variables
 % Generalized Position Vector, Velocity Vector, Gyroscope States, etc.
 % Specific plotting details for Euler angles, roll convergence, and CMG torques follow.
 % Each set of plots is saved with a case-specific filename for organized results storage.
 
-% Generalized Position Vector, eta
-    figure 
-    for kk = 1:6
-        plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
-        hold on; 
-        legend('-DynamicLegend','Location','eastoutside')
-    end
-        grid on; grid minor
-        xlabel('Control Cycle Time (s)')
-        ylabel('Magnitude (m,rad)')
-        title('Generalized Position Vector, \eta')
-        set(gca,'FontSize',16,'LineWidth',1.0)
+% % Generalized Position Vector, eta
+%     figure 
+%     for kk = 1:6
+%         plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
+%         hold on; 
+%         legend('-DynamicLegend','Location','eastoutside')
+%     end
+%         grid on; grid minor
+%         xlabel('Control Cycle Time (s)')
+%         ylabel('Magnitude (m,rad)')
+%         title('Generalized Position Vector, \eta')
+%         set(gca,'FontSize',16,'LineWidth',1.0)
+% 
+%         resultcase = 'ARC_ETA';
+%         strNameARC = append(simcase,resultcase);
+%         print(gcf,'-depsc',strNameARC)
+%         print(gcf,'-dpng',strNameARC)
+%         %savefig(strNameARC)
+%         strNameMAN = append(manpath,resultcase);
+%         print(gcf,'-depsc',strNameMAN)
 
-        resultcase = 'ARC_ETA';
-        strNameARC = append(simcase,resultcase);
-        print(gcf,'-depsc',strNameARC)
-        print(gcf,'-dpng',strNameARC)
-        %savefig(strNameARC)
-        strNameMAN = append(manpath,resultcase);
-        print(gcf,'-depsc',strNameMAN)
-
-% Generalized Velocity Vector, nu
-    figure 
-    for kk = 7:12
-        plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
-        hold on; 
-        legend('-DynamicLegend','Location','eastoutside')
-    end
-        grid on; grid minor
-        xlabel('Control Cycle Time (s)')
-        ylabel('Magnitude (m/s, rad/s)')
-        title('Generalized Velocity Vector, \nu')
-        set(gca,'FontSize',16,'LineWidth',1.0)
-
-        resultcase = 'ARC_NU';
-        strNameARC = append(simcase,resultcase);
-        print(gcf,'-depsc',strNameARC)
-        print(gcf,'-dpng',strNameARC)
-        %savefig(strNameARC)
-        strNameMAN = append(manpath,resultcase);
-        print(gcf,'-depsc',strNameMAN)
+% % Generalized Velocity Vector, nu
+%     figure 
+%     for kk = 7:12
+%         plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
+%         hold on; 
+%         legend('-DynamicLegend','Location','eastoutside')
+%     end
+%         grid on; grid minor
+%         xlabel('Control Cycle Time (s)')
+%         ylabel('Magnitude (m/s, rad/s)')
+%         title('Generalized Velocity Vector, \nu')
+%         set(gca,'FontSize',16,'LineWidth',1.0)
+% 
+%         resultcase = 'ARC_NU';
+%         strNameARC = append(simcase,resultcase);
+%         print(gcf,'-depsc',strNameARC)
+%         print(gcf,'-dpng',strNameARC)
+%         %savefig(strNameARC)
+%         strNameMAN = append(manpath,resultcase);
+%         print(gcf,'-depsc',strNameMAN)
 
 % Gyroscope states
-    % overlay
-    figure 
-    for kk = 13:16
-        plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
-        hold on; 
-        legend('-DynamicLegend','Location','northeast')
-    end
-        grid on; grid minor
-        xlabel('Control Cycle Time (s)')
-        ylabel('Magnitude (rad, rad/s)')
-        title('Gyroscope States')
-        set(gca,'FontSize',16,'LineWidth',1.0)
 
-        resultcase = 'ARC_GYRO1';
-        strNameARC = append(simcase,resultcase);
-        print(gcf,'-depsc',strNameARC)
-        print(gcf,'-dpng',strNameARC)
-        %savefig(strNameARC)
-        strNameMAN = append(manpathcase,resultcase);
-        print(gcf,'-depsc',strNameMAN)
+    % % overlay
+    % figure 
+    % for kk = 13:16
+    %     plot(T_OUT,Y_OUT(:,kk),'LineWidth',2,'DisplayName',state_cell{1,kk})    
+    %     hold on; 
+    %     legend('-DynamicLegend','Location','northeast')
+    % end
+    %     grid on; grid minor
+    %     xlabel('Control Cycle Time (s)')
+    %     ylabel('Magnitude (rad, rad/s)')
+    %     title('Gyroscope States')
+    %     set(gca,'FontSize',16,'LineWidth',1.0)
+    % 
+    %     resultcase = 'ARC_GYRO1';
+    %     strNameARC = append(simcase,resultcase);
+    %     print(gcf,'-depsc',strNameARC)
+    %     print(gcf,'-dpng',strNameARC)
+    %     %savefig(strNameARC)
+    %     strNameMAN = append(manpathcase,resultcase);
+    %     print(gcf,'-depsc',strNameMAN)
 
     % subplots
     figure 
@@ -306,7 +307,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         grid on; grid minor
         title('Gyroscope States throughout Control Cycle')
         ylabel('\alpha, (rad)')
-        %legend('Al','Ti','Steel','Location','southeast')
+        legend('\alpha_1','\alpha_2')
         ylim([-pi/2 0])
         set(gca,'FontSize',16,'LineWidth',1.0)
 
@@ -324,7 +325,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
     %plot(T_OUT,Y_OUT(:,14),'Color',[0.3010 0.7450 0.9330],'LineWidth',2)   % light blue
         grid on; grid minor
         ylabel('\Omega, (rad/s)')
-        %legend('Al','Ti','Steel','Location','northeast')
+        legend('\Omega_1','\Omega_2')
         xlabel('Control Cycle Time (s)')
         set(gca,'FontSize',16,'LineWidth',1.0)
 
@@ -363,32 +364,33 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         print(gcf,'-depsc',strNameMAN)
     
 % Euler Angles
-    % overlay
-    figure
-    plot(T_OUT,Y_OUT(:,4),'LineWidth',2)    % phi
-    hold on
-    plot(T_OUT,Y_OUT(:,5),'LineWidth',2)    % theta
-    plot(T_OUT,Y_OUT(:,6),'LineWidth',2)    % psi
-        xlabel('Control Cycle Time (s)')
-        ylabel('Angle (rad)')
-        title('Euler Angles throughout Control Cycle')
-        grid on; grid minor
-        xlim([0 loop.cycleT])
-        ylim([-0.01 pi])
-        legend('\phi','\theta', '\psi')
-        set(gca,'FontSize',16,'LineWidth',1.0)
-        
-        % Convert y-axis to pi units
-        yticks(0:pi/4:pi)  % Set y-ticks at intervals of pi/4
-        yticklabels({'0', '\pi/4', '\pi/2', '3\pi/4', '\pi'})  % Set corresponding labels
 
-        resultcase = 'ARC_EULER1';
-        strNameARC = append(simcase,resultcase);
-        print(gcf,'-depsc',strNameARC)
-        print(gcf,'-dpng',strNameARC)
-        %savefig(strNameARC)
-        strNameMAN = append(manpathcase,resultcase);
-        print(gcf,'-depsc',strNameMAN)
+    % % overlay
+    % figure
+    % plot(T_OUT,Y_OUT(:,4),'LineWidth',2)    % phi
+    % hold on
+    % plot(T_OUT,Y_OUT(:,5),'LineWidth',2)    % theta
+    % plot(T_OUT,Y_OUT(:,6),'LineWidth',2)    % psi
+    %     xlabel('Control Cycle Time (s)')
+    %     ylabel('Angle (rad)')
+    %     title('Euler Angles throughout Control Cycle')
+    %     grid on; grid minor
+    %     xlim([0 loop.cycleT])
+    %     ylim([-0.01 pi])
+    %     legend('\phi','\theta', '\psi')
+    %     set(gca,'FontSize',16,'LineWidth',1.0)
+    % 
+    %     % Convert y-axis to pi units
+    %     yticks(0:pi/4:pi)  % Set y-ticks at intervals of pi/4
+    %     yticklabels({'0', '\pi/4', '\pi/2', '3\pi/4', '\pi'})  % Set corresponding labels
+    % 
+    %     resultcase = 'ARC_EULER1';
+    %     strNameARC = append(simcase,resultcase);
+    %     print(gcf,'-depsc',strNameARC)
+    %     print(gcf,'-dpng',strNameARC)
+    %     %savefig(strNameARC)
+    %     strNameMAN = append(manpathcase,resultcase);
+    %     print(gcf,'-depsc',strNameMAN)
     
     % subplots
     figure 
@@ -430,6 +432,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         print(gcf,'-depsc',strNameMAN)
 
 % AFT CMG (CMG #1) Torques
+
     % overlay
     figure 
     plot(t,tau_cmg1.K,'LineWidth',2)     % K
@@ -485,6 +488,7 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         print(gcf,'-depsc',strNameMAN) 
 
 % FWD CMG (CMG #2) Torques
+
     % overlay
     figure 
     plot(t,tau_cmg2.K,'LineWidth',2)     % K
