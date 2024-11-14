@@ -542,7 +542,66 @@ state_cell = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r','\alpha
         %savefig(strNameARC)
         strNameMAN = append(manpathcase,resultcase);
         print(gcf,'-depsc',strNameMAN) 
-        
+
+% SUMMED CMG (CMG #1 + #2) Torques
+tau_cmg.K = tau_cmg1.K + tau_cmg2.K;
+tau_cmg.M = tau_cmg1.M + tau_cmg2.M;
+tau_cmg.N = tau_cmg1.N + tau_cmg2.N;
+
+    % overlay
+    figure 
+    plot(t,tau_cmg.K,'LineWidth',2)     % K
+    hold on
+    plot(t,tau_cmg.M,'LineWidth',2)     % M
+    plot(t,tau_cmg.N,'LineWidth',2)     % N
+        grid on; grid minor
+        xlabel('Control Cycle Time (s)')
+        ylabel('Torque (N•m)')
+        title('Sum CMG Torques')
+        legend('K','M','N')
+        set(gca,'FontSize',16,'LineWidth',1.0)
+    
+        resultcase = 'ARC_CMG5';
+        strNameARC = append(simcase,resultcase);
+        print(gcf,'-depsc',strNameARC)
+        print(gcf,'-dpng',strNameARC)
+        %savefig(strNameARC)
+        strNameMAN = append(manpathcase,resultcase);
+        print(gcf,'-depsc',strNameMAN)
+   
+    % subplots
+    figure 
+    subplot(3,1,1)  % K
+    plot(t,tau_cmg.K,'LineWidth',2)   
+    hold on
+        grid on; grid minor
+        title('Sum CMG Torques (N•m)')
+        ylabel('K')
+        set(gca,'FontSize',16,'LineWidth',1.0)
+    subplot(3,1,2)  % M
+    %plot(t,tau_cmg.M,'LineWidth',2)                                     
+    plot(t,tau_cmg.M,'Color',[0.8500 0.3250 0.0980],'LineWidth',2)  % (Single Gyroscope State)
+    hold on
+        grid on; grid minor
+        ylabel('M')
+        set(gca,'FontSize',16,'LineWidth',1.0)
+    subplot(3,1,3)  % N             
+    %plot(t,tau_cmg.N,'LineWidth',2)                                     
+    plot(t,tau_cmg.N,'Color',[0.9290 0.6940 0.1250],'LineWidth',2)  % (Single Gyroscope State)  
+    hold on
+        grid on; grid minor
+        ylabel('N')
+        xlabel('Control Cycle Time (s)')
+        set(gca,'FontSize',16,'LineWidth',1.0)
+    
+        resultcase = 'ARC_CMG6';
+        strNameARC = append(simcase,resultcase);
+        print(gcf,'-depsc',strNameARC)
+        print(gcf,'-dpng',strNameARC)
+        %savefig(strNameARC)
+        strNameMAN = append(manpathcase,resultcase);
+        print(gcf,'-depsc',strNameMAN) 
+
 % %% CMG PROPERTIES
 % % Define the range of radius and thickness
 % radii       = linspace(0.0508, 0.0762, 20);     % 2 inches to 3 inches (in meters)
