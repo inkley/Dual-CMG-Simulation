@@ -99,14 +99,14 @@ tauC.ND = 0;    % Desired yaw moment    (N-m)
 % AFT CMG (CMG #1)
 % Flywheel angular acceleration (Omegadot1) to achieve the desired pitch moment
 % The tan(alpha1) and I1 terms factor in the gyroscopic effects of the CMG
-contpar.Omegadot1 = (tauC.MD - tan(alpha1) * tauC.KD) / (I1 * ((sin(alpha1))^2 / cos(alpha1)) + I1 * cos(alpha1));
+contpar.Omegadot1    = (cos(alpha1)*tauC.MD - sin(alpha1)*tauC.KD)/(I1);
 
 % Gimbal angular velocity (alphadot1) for CMG #1 to achieve the desired roll moment
 contpar.alphadot1 = (tauC.KD + I1 * sin(alpha1) * contpar.Omegadot1 + I1 * cos(alpha1) * Omega1 * r) / (-I1 * cos(alpha1) * Omega1);
 
 % FWD CMG (CMG #2)
 % Flywheel angular acceleration (Omegadot2) to achieve the desired pitch moment
-contpar.Omegadot2 = (tauC.MD - tan(alpha2) * tauC.KD) / (I2 * ((sin(alpha2))^2 / cos(alpha2)) + I2 * cos(alpha2));
+contpar.Omegadot2    = (cos(alpha2)*tauC.MD - sin(alpha2)*tauC.KD)/(I2);
 
 % Gimbal angular velocity (alphadot2) for CMG #2 to achieve the desired roll moment
 contpar.alphadot2 = (tauC.KD + I2 * sin(alpha2) * contpar.Omegadot2 + I2 * cos(alpha2) * Omega2 * r) / (-I2 * cos(alpha2) * Omega2);
