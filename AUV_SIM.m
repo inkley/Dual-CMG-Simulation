@@ -23,7 +23,8 @@ tic         % Start simulaiton timer
 ii = 0;     % Simulation case selector: 0 = Pure Roll, 1 = Forward Surge Velocity, etc.                          
 
 % Change result designation based on sim case
-manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/Working Results/';  % Work
+manpath = '../manResults/'; % SUPR PC Directory Pathway
+%manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/Working Results/';  % Work
 %manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/MDPI_Work/';        % MDPI
 
     %%%%% PURE ROLL FROM VEHICLE AT REST %%%%%
