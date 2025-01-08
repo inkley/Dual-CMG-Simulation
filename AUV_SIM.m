@@ -604,8 +604,8 @@ tau_cmg.N = tau_cmg1.N + tau_cmg2.N;
 
 %% CMG PROPERTIES
 % Define the range of radius and thickness
-radii       = linspace(0.0508, 0.0762, 20);     % 2 inches to 3 inches (in meters)
-thicknesses = linspace(0.00635, 0.0508, 20);    % 1/4 inch to 2 inches (in meters)
+radii       = linspace(0.0508, 0.0762, 25);     % 2 inches to 3 inches (in meters)
+thicknesses = linspace(0.00635, 0.0508, 25);    % 1/4 inch to 2 inches (in meters)
 
 % Preallocate matrices to store max Δɑ, ΔΩ, and input/output energies
 max_delta_alpha1                = zeros(length(radii), length(thicknesses));
@@ -640,24 +640,24 @@ for i = 1:length(radii)
         [tau_cmg1, tau_cmg2] = TORQUE(gyro1, gyro2, T_OUT, Y_OUT);
 
         % Extract Δɑ and ΔΩ for both gyroscopes
-        delta_alpha1 = diff(Y_OUT(:, 13));  % Deflection angle changes for aft CMG
-        delta_omega1 = diff(Y_OUT(:, 14));  % Angular velocity changes for aft CMG
-        delta_alpha2 = diff(Y_OUT(:, 15));  % Deflection angle changes for fwd CMG
-        delta_omega2 = diff(Y_OUT(:, 16));  % Angular velocity changes for fwd CMG
+        delta_alpha1 = diff(Y_OUT(:, 13));                  % Deflection angle changes for aft CMG
+        delta_omega1 = diff(Y_OUT(:, 14));                  % Angular velocity changes for aft CMG
+        delta_alpha2 = diff(Y_OUT(:, 15));                  % Deflection angle changes for fwd CMG
+        delta_omega2 = diff(Y_OUT(:, 16));                  % Angular velocity changes for fwd CMG
 
         % Store the max values in the matrices for both CMGs
-        max_delta_alpha1(i, j) = max(abs(delta_alpha1));  % Max change in alpha for aft CMG
-        max_delta_omega1(i, j) = max(abs(delta_omega1));  % Max change in Omega for aft CMG
-        max_delta_alpha2(i, j) = max(abs(delta_alpha2));  % Max change in alpha for fwd CMG
-        max_delta_omega2(i, j) = max(abs(delta_omega2));  % Max change in Omega for fwd CMG
+        max_delta_alpha1(i, j) = max(abs(delta_alpha1));    % Max change in alpha for aft CMG
+        max_delta_omega1(i, j) = max(abs(delta_omega1));    % Max change in Omega for aft CMG
+        max_delta_alpha2(i, j) = max(abs(delta_alpha2));    % Max change in alpha for fwd CMG
+        max_delta_omega2(i, j) = max(abs(delta_omega2));    % Max change in Omega for fwd CMG
 
         % Extract necessary parameters for energy calculations
-        Omega1       = Y_OUT(1:end-1, 14);                % Angular velocity for aft CMG
-        Omega2       = Y_OUT(1:end-1, 16);                % Angular velocity for fwd CMG
-        alpha_dot1   = diff(Y_OUT(:, 13)) ./ diff(T_OUT); % Deflection velocity for aft CMG        
-        alpha_dot2   = diff(Y_OUT(:, 15)) ./ diff(T_OUT); % Deflection velocity for fwd CMG        
-        K_total      = tau_cmg1.K + tau_cmg2.K;           % Total roll torque from both CMGs
-        p            = Y_OUT(1:end-1, 10);                % Roll velocity
+        Omega1       = Y_OUT(1:end-1, 14);                  % Angular velocity for aft CMG
+        Omega2       = Y_OUT(1:end-1, 16);                  % Angular velocity for fwd CMG
+        alpha_dot1   = diff(Y_OUT(:, 13))./diff(T_OUT);     % Deflection velocity for aft CMG        
+        alpha_dot2   = diff(Y_OUT(:, 15))./diff(T_OUT);     % Deflection velocity for fwd CMG        
+        K_total      = tau_cmg1.K + tau_cmg2.K;             % Total roll torque from both CMGs
+        p            = Y_OUT(1:end-1, 10);                  % Roll velocity
 
         % Compute instantaneous roll power
         P_roll = K_total .* p;
@@ -692,11 +692,12 @@ end
 
 % Contour plot for total energy input
 figure
-contourf(radii, thicknesses, total_energy_input_matrix, 20) 
+contourf(radii, thicknesses, total_energy_input_matrix, 25)
 xlabel('Gyroscope Radius (m)')
 ylabel('Gyroscope Thickness (m)')
-title('Total CMG Energy Input (J)')
+title('Total CMG Energy Input (J)')  % J = Joules
 colorbar
+ylabel(colorbar, 'Energy (J)')       % Colorbar label
 set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 
         resultcase = 'ARC_CMG7';
@@ -709,11 +710,12 @@ set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 
 % Plotting the total output energy in roll as a contour plot
 figure
-contourf(radii, thicknesses, output_energy_roll_matrix, 20)
+contourf(radii, thicknesses, output_energy_roll_matrix, 25)
 xlabel('Gyroscope Radius (m)')
 ylabel('Gyroscope Thickness (m)')
 title('Total Output Energy in Roll (J)')
 colorbar
+ylabel(colorbar, 'Energy (J)')
 set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 
         resultcase = 'ARC_CMG8';
@@ -734,14 +736,17 @@ set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 % set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 
 % Plotting the cmg efficiency as a contour plot
-cmg_efficiency = output_energy_roll_matrix/total_energy_input_matrix;
+cmg_efficiency = 100 * output_energy_roll_matrix ./ (total_energy_input_matrix + eps);
+peak_efficiency = peak_output_energy_roll_matrix./(total_energy_input_matrix + eps);
+disp(['Efficiency Range: ', num2str(min(cmg_efficiency(:))), ' to ', num2str(max(cmg_efficiency(:)))]);
 
 figure
-contourf(radii, thicknesses, cmg_efficiency, 20)
+contourf(radii, thicknesses, cmg_efficiency, 25)
 xlabel('Gyroscope Radius (m)')
 ylabel('Gyroscope Thickness (m)')
-title('CMG Efficiency')
+title('CMG Efficiency (%)')
 colorbar
+ylabel(colorbar, 'Efficiency (%)')  % Colorbar unit
 set(gca, 'FontSize', 16, 'LineWidth', 1.0)
 
         resultcase = 'ARC_CMG9';
@@ -751,3 +756,20 @@ set(gca, 'FontSize', 16, 'LineWidth', 1.0)
         %savefig(strNameARC)
         strNameMAN = append(manpathcase,resultcase);
         print(gcf,'-depsc',strNameMAN) 
+
+% % Plotting the peak efficiency in roll as a contour plot
+% figure
+% contourf(radii, thicknesses, peak_efficiency, 20)
+% xlabel('Gyroscope Radius (m)')
+% ylabel('Gyroscope Thickness (m)')
+% title('CMG Peak Efficiency')
+% colorbar
+% set(gca, 'FontSize', 16, 'LineWidth', 1.0)
+% 
+%         resultcase = 'ARC_CMG9';
+%         strNameARC = append(simcase,resultcase);
+%         print(gcf,'-depsc',strNameARC)
+%         print(gcf,'-dpng',strNameARC)
+%         %savefig(strNameARC)
+%         strNameMAN = append(manpathcase,resultcase);
+%         print(gcf,'-depsc',strNameMAN)         
