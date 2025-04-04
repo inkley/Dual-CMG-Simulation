@@ -125,6 +125,8 @@ manpath = '/Users/Tyler/Desktop/RESEARCH/4 Dissertation/Manuscripts/CMG/MDPI_Wor
     % end
 
 %% GYROSCOPE STATES
+% Sim: a_10 = a_20 = \p/2 (avoid singularity  at = 0 rad, maybe just = 0.01?)
+
 % AFT CMG (CMG #1)
 state.alpha1    = 0;                            % Initial deflection angle (rad)
 state.Omega1    = 10 * pi;                      % Flywheel angular velocity, rad/s (300 rpm)
