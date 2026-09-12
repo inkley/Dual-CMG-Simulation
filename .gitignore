@@ -1,0 +1,15 @@
+# Generated MATLAB figures and simulation outputs
+/Working Results/*
+!/Working Results/.gitkeep
+
+# Local OS/editor files and MATLAB autosaves
+.DS_Store
+*.asv
+*.m~
+*.autosave
+*.log
+
+# Local credentials (never commit)
+.env
+.env.*
+!.env.example

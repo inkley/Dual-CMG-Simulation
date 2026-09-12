@@ -1,121 +1,134 @@
-function [Etadot] = CONTROL(t, state, gains, gyro1, gyro2, auv, params, d, loop)
-% CONTROL.m
-% This script implements the control logic for the Autonomous Underwater
-% Vehicle (AUV). The control system is responsible for calculating the
-% required control forces and moments to drive the vehicle toward desired
-% orientations and positions. The script uses Proportional-Derivative (PD)
-% control gains to regulate the vehicle's roll, pitch, and yaw based on the
-% current state and desired Euler angles.
-%
-% Inputs
-% - t: Current time in the simulation (unused in calculations, included for
-%      ODE solver compatibility).
-% - state: Current state vector of the vehicle, including position,
-%          orientation, and velocities.
-% - gains: Structure containing the PD control gains for the AUV's roll,
-%          pitch, and yaw.
-% - gyro1, gyro2: Structures containing each gyroscope's properties, including
-%                 inertia.
-% - auv: Structure containing the AUV's properties, such as mass and
-%        inertia.
-% - params: Structure containing various physical parameters of the
-%           vehicle.
-% - d: Structure containing desired Euler angles (phi, theta, psi).
-% - loop: Structure containing loop parameters, such as cycle time.
-%
-% Outputs
-% - Etadot: Time derivative of the generalized position vector,
-%           representing the AUV's response to the control inputs.
+function [Etadot, controlData] = CONTROL(t, state, gains, gyro1, gyro2, ...
+        auv, params, d, loop, cmgConfig)
+%CONTROL Evaluate the controller, CMG dynamics, and vehicle dynamics.
+% CMG outputs are body-axis reaction couples. CONTROL does not translate
+% those moments from physical mounting points; installed-module mass effects
+% must already be represented by the vehicle properties passed to REMUS.
 
-%% VARIABLES
-% Desired roll angle from control input
-phi_d   = d.phi;
+[tauC, commandedContpar, allocation] = CMG_ALLOCATE( ...
+    t, state, gains, gyro1, gyro2, d, loop, cmgConfig);
+[contpar, actuator] = applyGimbalActuatorDynamics( ...
+    commandedContpar, state, cmgConfig);
+[tau_cmg1, tau_cmg2] = CMG(gyro1, gyro2, contpar, state);
+[tau_unconstrained1, tau_unconstrained2] = CMG(gyro1, gyro2, ...
+    allocation.unconstrainedCommand, state);
+requestedThrusterForceMoment = [0;0];
+hybrid.activation = 0;
+hybrid.rollCommand = tauC.desiredPhi;
+hybrid.rollError = tauC.desiredPhi-state(4);
+hybrid.rollRate = state(10);
+hybrid.lateralPosition = 0;
+hybrid.lateralVelocity = 0;
+hybrid.lateralError = 0;
+hybrid.headingError = 0;
+if isfield(cmgConfig,'hybrid') && cmgConfig.hybrid.enabled
+    [hybridRequest,hybrid] = HYBRID_MANEUVER_CONTROL(state,d,cmgConfig);
+    requestedThrusterForceMoment = [hybridRequest.Y;hybridRequest.N];
+end
+switch cmgConfig.thruster.commandMode
+    case 'generalized_force'
+        if ~cmgConfig.hybrid.enabled && isfield(d,'thruster')
+            requestedThrusterForceMoment = [d.thruster.Y;d.thruster.N];
+        end
+        thrusterAllocation = THRUSTER_ALLOCATE( ...
+            requestedThrusterForceMoment,cmgConfig.thruster);
+    case 'direct_force'
+        Bthruster = [1,1;cmgConfig.thruster.positionBody(1,:)];
+        requestedThrusterForceMoment = ...
+            Bthruster*cmgConfig.thruster.commandForce(:);
+        thrusterAllocation = THRUSTER_ALLOCATE( ...
+            requestedThrusterForceMoment,cmgConfig.thruster);
+    otherwise
+        error('Unsupported thruster command mode: %s', ...
+            cmgConfig.thruster.commandMode);
+end
+thrusterConfig = cmgConfig;
+thrusterConfig.thruster.commandForce = thrusterAllocation.commandedForce;
+thruster = VORTEX_RING_THRUSTERS(t,state,thrusterConfig);
 
-% Control gains for roll (Kpp: proportional, Kdp: derivative)
-Kpp     = gains.Kpp;
-Kdp     = gains.Kdp;
-
-% Moments of inertia for each CMG
-I1      = gyro1.I;
-I2      = gyro2.I;
-
-% Current vehicle orientation (Euler angles)
-phi     = state(4);     % Roll angle
-theta   = state(5);   % Pitch angle
-
-% Current angular velocities of the vehicle
-p       = state(10);  % Roll rate
-q       = state(11);  % Pitch rate
-r       = state(12);  % Yaw rate
-
-% Current deflection angles (gimbal angles) and flywheel speeds for each CMG
-alpha1  = state(13);    
-Omega1  = state(14);    
-alpha2  = state(15);    
-Omega2  = state(16);
-
-% Control loop cycle time
-T       = loop.cycleT;
-
-%% ERROR
-% Calculate error in roll angle and roll rate for PD control
-errphi      = phi_d - phi;  % Roll angle error
-errphidot   = -(p + sin(phi) * tan(theta) * q + cos(phi) * tan(theta) * r);  % Roll rate error
-
-%% CONTROLLER
-
-% % MK ROLL/YAW SEQUENTIAL CONTROL
-% % Equation(s) 6a-6c, 7 MK Roll/Yaw --> change to pure roll control
-% if t <= lt  % Roll only phase bringing yaw plane into alignment - think I only need this for roll sims
-%     erralpha    = - int_r;  
-%     Kgyro       = kpp*errphi + kdp*errphidot;
-%     Nc          = kpr*erralpha - kdr*r; % Will I need these Nc terms here for a roll only simulation? TBD
-%     Xc          = kpu*erru - kdu*udot + Xuu*u0^2;  
-% else        % Roll and yaw phase to reach desired orientation
-%     erralpha    = alpha - int_r;
-%     Kgyro       = kpp*errphi + kdp*errphidot;
-%     Nc          = kpr*erralpha - kdr*r;
-%     Xc          = kpu*erru - kdu*udot + Xuu*u0^2;
-% end
-
-% Active roll control using PD control gains
-% Apply proportional and derivative control to roll angle error
-if t <= T   
-    Kc = Kpp * errphi + Kdp * errphidot;
+Etadot = REMUS(t, auv, contpar, params, state, ...
+    tauC, tau_cmg1, tau_cmg2,thruster);
+if numel(state) >= 20
+    Etadot = [Etadot;thruster.forceDot];
 end
 
-% Desired control forces and moments (N and N-m) in each axis
-% Set non-roll components to zero, as they are not part of active control here
-tauC.XD = 0;    % Desired surge force   (N)
-tauC.YD = 0;    % Desired sway force    (N)
-tauC.ZD = 0;    % Desired heave force   (N)
-tauC.KD = Kc;   % Desired roll moment   (N-m)
-tauC.MD = 0;    % Desired pitch moment  (N-m)
-tauC.ND = 0;    % Desired yaw moment    (N-m)
+if cmgConfig.diagnostics.failOnNonfinite && any(~isfinite(Etadot))
+    error('CMG:NonfiniteDerivative', ...
+        'Nonfinite state derivative at t = %.9g s. State: %s', ...
+        t, mat2str(state.', 6));
+end
 
-%% CMG CONTROLS
-% Calculate the required gimbal and flywheel angular accelerations for each CMG
+if nargout > 1
+    controlData.requestedMoment = [tauC.KD; tauC.MD; tauC.ND];
+    controlData.feedbackRollMoment = tauC.KFeedback;
+    controlData.momentumUnloadMoment = tauC.KMomentumUnload;
+    controlData.externalDumpMoment = tauC.KExternalDump;
+    controlData.rollDisturbance = tauC.KDisturbance;
+    controlData.achievedMoment = [ ...
+        tau_cmg1.K + tau_cmg2.K; ...
+        tau_cmg1.M + tau_cmg2.M; ...
+        tau_cmg1.N + tau_cmg2.N];
+    controlData.unconstrainedAchievedMoment = [ ...
+        tau_unconstrained1.K + tau_unconstrained2.K; ...
+        tau_unconstrained1.M + tau_unconstrained2.M; ...
+        tau_unconstrained1.N + tau_unconstrained2.N];
+    controlData.contpar = contpar;
+    controlData.commandedContpar = commandedContpar;
+    controlData.actuator = actuator;
+    controlData.allocation = allocation;
+    controlData.tau_cmg1 = tau_cmg1;
+    controlData.tau_cmg2 = tau_cmg2;
+    controlData.thruster = thruster;
+    controlData.thrusterAllocation = thrusterAllocation;
+    controlData.hybrid = hybrid;
+end
+end
 
-% AFT CMG (CMG #1)
-% Flywheel angular acceleration (Omegadot1) to achieve the desired pitch moment
-% The tan(alpha1) and I1 terms factor in the gyroscopic effects of the CMG
-contpar.Omegadot1    = (cos(alpha1)*tauC.MD - sin(alpha1)*tauC.KD)/(I1);
+function [actual, actuator] = applyGimbalActuatorDynamics(commanded, state, config)
+% Model each gimbal as a rate servo with finite acceleration. Gimbal rate is
+% now a state rather than an algebraic command, eliminating instantaneous
+% rate changes and enabling preliminary motor torque/power calculations.
+actual = commanded;
+actualRates = state(17:18);
+commandedRates = [commanded.alphadot1; commanded.alphadot2];
+angles = [state(13); state(15)];
+maxRate = config.limits.maxGimbalRate;
+maxAccel = config.limits.maxGimbalAccel;
 
-% Gimbal angular velocity (alphadot1) for CMG #1 to achieve the desired roll moment
-contpar.alphadot1 = (tauC.KD + I1 * sin(alpha1) * contpar.Omegadot1 + I1 * cos(alpha1) * Omega1 * r) / (-I1 * cos(alpha1) * Omega1);
+% A stopping-distance rate envelope prevents a finite-acceleration gimbal
+% from coasting appreciably through its mechanical angle bound.
+remainingTravel = max(config.limits.maxGimbalAngle-abs(angles), 0);
+stoppingRates = sqrt(2*maxAccel*remainingTravel);
+commandedRates = min(max(commandedRates, -stoppingRates), stoppingRates);
+commandedRates = min(max(commandedRates, -maxRate), maxRate);
 
-% FWD CMG (CMG #2)
-% Flywheel angular acceleration (Omegadot2) to achieve the desired pitch moment
-contpar.Omegadot2    = (cos(alpha2)*tauC.MD - sin(alpha2)*tauC.KD)/(I2);
+timeConstants = config.gimbal.rateTimeConstant(:);
+if isscalar(timeConstants)
+    timeConstants = repmat(timeConstants,2,1);
+end
+rawAccel = (commandedRates-actualRates)./timeConstants;
+gimbalAccel = min(max(rawAccel, -maxAccel), maxAccel);
+atOrBeyondStop = abs(angles) >= config.limits.maxGimbalAngle;
+for module = 1:2
+    if atOrBeyondStop(module) && sign(actualRates(module)) == sign(angles(module))
+        gimbalAccel(module) = min(max( ...
+            -actualRates(module)/timeConstants(module), ...
+            -maxAccel), maxAccel);
+    end
+end
 
-% Gimbal angular velocity (alphadot2) for CMG #2 to achieve the desired roll moment
-contpar.alphadot2 = (tauC.KD + I2 * sin(alpha2) * contpar.Omegadot2 + I2 * cos(alpha2) * Omega2 * r) / (-I2 * cos(alpha2) * Omega2);
+if strcmp(config.mode, 'single')
+    commandedRates(2) = 0;
+    gimbalAccel(2) = min(max( ...
+        -actualRates(2)/timeConstants(2), -maxAccel), maxAccel);
+end
 
-% Calculate the torques generated by each CMG based on the control parameters
-[tau_cmg1, tau_cmg2] = CMG(gyro1, gyro2, contpar, state); 
-
-% Call the REMUS function to compute the vehicle's response (Etadot)
-% based on the applied control forces and CMG-generated torques
-[Etadot] = REMUS(t, auv, contpar, params, state, tauC, tau_cmg1, tau_cmg2);
-
+actual.alphadot1 = actualRates(1);
+actual.alphadot2 = actualRates(2);
+actual.gimbalAccel1 = gimbalAccel(1);
+actual.gimbalAccel2 = gimbalAccel(2);
+actuator.commandedGimbalRate = commandedRates;
+actuator.actualGimbalRate = actualRates;
+actuator.gimbalAccel = gimbalAccel;
+actuator.gimbalAccelSaturated = any(abs(rawAccel) > maxAccel);
 end
