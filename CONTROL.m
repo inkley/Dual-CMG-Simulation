@@ -45,11 +45,15 @@ end
 thrusterConfig = cmgConfig;
 thrusterConfig.thruster.commandForce = thrusterAllocation.commandedForce;
 thruster = VORTEX_RING_THRUSTERS(t,state,thrusterConfig);
+propulsion = AFT_PROPULSION(state,cmgConfig);
 
 Etadot = REMUS(t, auv, contpar, params, state, ...
-    tauC, tau_cmg1, tau_cmg2,thruster);
+    tauC, tau_cmg1, tau_cmg2,thruster,propulsion);
 if numel(state) >= 20
     Etadot = [Etadot;thruster.forceDot];
+end
+if numel(state) >= 21
+    Etadot = [Etadot;propulsion.forceDot];
 end
 
 if cmgConfig.diagnostics.failOnNonfinite && any(~isfinite(Etadot))
@@ -79,6 +83,7 @@ if nargout > 1
     controlData.tau_cmg1 = tau_cmg1;
     controlData.tau_cmg2 = tau_cmg2;
     controlData.thruster = thruster;
+    controlData.propulsion = propulsion;
     controlData.thrusterAllocation = thrusterAllocation;
     controlData.hybrid = hybrid;
 end

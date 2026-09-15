@@ -1,5 +1,5 @@
 function [Etadot, tau] = REMUS(~, auv, contpar, params, state, tauC, ...
-        tau_cmg1, tau_cmg2, thruster)
+        tau_cmg1, tau_cmg2, thruster, propulsion)
 % REMUS.m
 % This script models the dynamics of the REMUS (Remote Environmental
 % Monitoring UnitS) underwater vehicle. The script calculates the
@@ -144,6 +144,12 @@ N           = NHS + Nhyd + tau_cmg1.N + tau_cmg2.N + thruster.N; % Total yaw mom
 
 % Generalized force vector
 tau         = [X;Y;Z;K;M;N];
+% Optional actual aft-propulsion force and r-cross-F mounting moment.
+% Keep legacy direct REMUS calls valid. Centerline axial thrust adds only X.
+% No shaft-reaction roll torque is included by this net-thrust actuator.
+if nargin >= 10
+    tau = tau + propulsion.generalizedForce;
+end
 
 %% Inertia Matrix and Coriolis Matrix
 % Inertia matrix (Ma) with added mass terms

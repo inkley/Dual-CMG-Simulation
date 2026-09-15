@@ -48,6 +48,46 @@ Other initial-condition cases are `FSV` (forward surge velocity), `STM`
 (standard turn maneuver), and `SPF` (simple path following). These labels do
 not imply that complete mission-level behavior has been validated.
 
+## Optional aft propulsion
+
+The default CMG baseline keeps propulsion disabled. To include a constant
+forward thrust, edit these settings in `AUV_SIM.m`:
+
+```matlab
+cmgConfig.propulsion.enabled = true;
+cmgConfig.propulsion.commandForce = 5; % N; direct thrust, not speed control
+```
+
+Enabled runs add state 21 (actual aft thrust) and save beneath the case's
+`aft_propulsion/` subfolder, preserving the CMG-only baseline output path.
+The model uses forward-only net thrust, finite lag and slew, and a mounting
+moment computed as r cross F. The default centerline mounting adds surge only;
+shaft-reaction torque and propeller inflow/RPM physics are not represented.
+`AFT_PROPULSION_DEFAULTS.m` holds provisional settings, not hardware ratings.
+Run `VERIFY_AFT_PROPULSION` and `AFT_PROPULSION_ANALYSIS` for actuator tests and
+isolated surge/shutdown validation. See `AFT_PROPULSION_FINDINGS.md`.
+This does not yet implement speed regulation or roll-turn-surge sequencing.
+
+## Complete roll-turn-surge demonstration
+
+Run `RUN_ROLL_TURN_SURGE` for a from-rest roll, shaped in-plane turn, and
+speed-controlled cruise segment. This is a separate mission entry point;
+`AUV_SIM.m` remains the baseline driver. The mission reads the saved symmetric
+dual VFR baseline and does not overwrite it. Its supervisor requires sustained
+capture before turning and before enabling aft thrust. Lateral control switches
+to a cross-track path during surge so it does not oppose oblique forward travel.
+
+```matlab
+RUN_ROLL_TURN_SURGE
+RUN_ROLL_TURN_SURGE(struct('planeDeg',-45,'headingDeg',-45))
+```
+
+`ROLL_TURN_SURGE_DEFAULTS.m` defines the finite mission and controller settings.
+See `ROLL_TURN_SURGE_FINDINGS.md` for criteria, results and limitations.
+`COMPLETE` means the cruise observation interval ended, not that the vehicle
+stopped or reached a waypoint. Existing gimbal-stop and propeller shaft-torque
+limitations remain. No automatic return to nominal roll is attempted.
+
 ## Single and dual comparisons
 
 Run `AUV_SIM` once in single mode and once in symmetric dual mode, using
@@ -101,11 +141,21 @@ ROLL_TO_PLANE_ALIGNMENT_SWEEP
 DUAL_CMG_MISMATCH_SWEEP
 REPEATED_ROLL_MOMENTUM_ANALYSIS
 MOMENTUM_UNLOADING_ANALYSIS
+OBLIQUE_CMG_MOMENTUM_ENVELOPE
+OBLIQUE_PRELOAD_SHAPING_SWEEP
 ```
 
 Read each script's configuration before running. Scenario scripts generally
 load the saved baseline and apply their own commands or parameter changes;
 results therefore depend on both the saved baseline and the analysis script.
+The oblique-envelope characterization saves full histories, momentum maps,
+rate-based roll-authority intervals, and a half-step sensitivity check. See
+`OBLIQUE_CMG_MOMENTUM_FINDINGS.md` for interpretation and limitations.
+The preload/shaping sweep compares fixed initial gimbal preloads with smooth
+in-plane heading references, without changing the production controllers.
+See `OBLIQUE_PRELOAD_SHAPING_FINDINGS.md`. Its candidate refinement command is
+`OBLIQUE_PRELOAD_SHAPING_SWEEP([10,20],.005)` followed by
+`VERIFY_OBLIQUE_SHAPING_RESULTS`.
 `*_ANALYSIS.m` also includes callable diagnostic helpers, so not every file
 with that suffix is a standalone script.
 

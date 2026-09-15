@@ -60,6 +60,14 @@ controlHistory.hybridRollError = zeros(sampleCount,1);
 controlHistory.hybridLateralPosition = zeros(sampleCount,1);
 controlHistory.hybridLateralError = zeros(sampleCount,1);
 controlHistory.hybridHeadingError = zeros(sampleCount,1);
+controlHistory.propulsionCommand = zeros(sampleCount,1);
+controlHistory.propulsionLimitedCommand = zeros(sampleCount,1);
+controlHistory.propulsionForce = zeros(sampleCount,1);
+controlHistory.propulsionForceDot = zeros(sampleCount,1);
+controlHistory.propulsionGeneralizedForce = zeros(sampleCount,6);
+controlHistory.propulsionForceLimited = false(sampleCount,1);
+controlHistory.propulsionRateLimited = false(sampleCount,1);
+controlHistory.propulsionVehiclePower = zeros(sampleCount,1);
 
 for index = 1:sampleCount
     [~, data] = CONTROL(T_OUT(index), Y_OUT(index,:).', ...
@@ -148,5 +156,13 @@ for index = 1:sampleCount
         data.hybrid.lateralPosition;
     controlHistory.hybridLateralError(index) = data.hybrid.lateralError;
     controlHistory.hybridHeadingError(index) = data.hybrid.headingError;
+    controlHistory.propulsionCommand(index) = data.propulsion.commandedForce;
+    controlHistory.propulsionLimitedCommand(index) = data.propulsion.limitedCommand;
+    controlHistory.propulsionForce(index) = data.propulsion.actualForce;
+    controlHistory.propulsionForceDot(index) = data.propulsion.forceDot;
+    controlHistory.propulsionGeneralizedForce(index,:) = data.propulsion.generalizedForce.';
+    controlHistory.propulsionForceLimited(index) = data.propulsion.forceLimited;
+    controlHistory.propulsionRateLimited(index) = data.propulsion.forceRateLimited;
+    controlHistory.propulsionVehiclePower(index) = data.propulsion.vehiclePower;
 end
 end

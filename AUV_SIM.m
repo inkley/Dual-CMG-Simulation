@@ -59,6 +59,13 @@ cmgConfig.thruster.maxForceRate = 50;           % N/s/module, provisional
 cmgConfig.thruster.modelStatus = ...
     'cycle-averaged provisional actuator model';
 
+% Optional aft propulsion: direct forward thrust, NOT a surge-speed loop.
+% Enable and set commandForce to test a constant thrust. Starts at zero force.
+% Enabled outputs are separated from the saved CMG-only baseline.
+cmgConfig.propulsion = AFT_PROPULSION_DEFAULTS();
+cmgConfig.propulsion.enabled = false;
+cmgConfig.propulsion.commandForce = 0; % N; try 5 N for an isolated surge test
+
 % Hybrid maneuver controller. The main baseline leaves it disabled; the
 % coordinated validation script enables it after defining a maneuver plane,
 % lateral displacement, and desired heading vector.
@@ -163,6 +170,9 @@ else
     outputDir = fullfile(scriptDir, 'Working Results', ...
         cmgConfig.mode, simConfig.case);
 end
+if cmgConfig.propulsion.enabled
+    outputDir = fullfile(outputDir,'aft_propulsion');
+end
 if ~isfolder(outputDir)
     mkdir(outputDir);
 end
@@ -186,6 +196,9 @@ stateVec = [state.x; state.y; state.z; state.phi; state.theta; state.psi; ...
     state.u; state.v; state.w; state.p; state.q; state.r; ...
     state.alpha1; state.Omega1; state.alpha2; state.Omega2; ...
     state.alphadot1; state.alphadot2; 0; 0]; % states 19-20: VRT forces
+if cmgConfig.propulsion.enabled
+    stateVec(21,1) = 0; % actual aft thrust (N)
+end
 
 d.phi = simConfig.directRollAngle;
 d.theta = 0;
@@ -496,6 +509,11 @@ runMetadata.timestamp = char(datetime('now', ...
     'Format', 'yyyy-MM-dd HH:mm:ss Z'));
 runMetadata.matlabVersion = version;
 runMetadata.gitCommit = getGitCommit(scriptDir);
+if cmgConfig.propulsion.enabled
+    fprintf('Aft propulsion: peak %.3f N, final surge %.3f m/s, vehicle work %.3f J (not electrical input).\n', ...
+        max(controlHistory.propulsionForce),Y_OUT(end,7), ...
+        trapz(T_OUT,controlHistory.propulsionVehiclePower));
+end
 save(fullfile(outputDir, 'simulation_result.mat'), ...
     'T_OUT', 'Y_OUT', 'tau_cmg1', 'tau_cmg2', 'controlHistory', 'energy', ...
     'simSummary', 'cmgConfig', 'simConfig', 'plotConfig', ...
@@ -644,8 +662,22 @@ function plotSimulationResults(T, Y, tau1, tau2, control, energy, momentum, ...
 
     labels = {'x','y','z','\phi','\theta','\psi','u','v','w','p','q','r', ...
         '\alpha_1','\Omega_1','\alpha_2','\Omega_2', ...
-        '\dot{\alpha}_1','\dot{\alpha}_2','F_{VRT,f}','F_{VRT,a}'};
+        '\dot{\alpha}_1','\dot{\alpha}_2','F_{VRT,f}','F_{VRT,a}','F_{aft}'};
     torqueTime = T;
+
+    if size(Y,2)>=21
+        fig = createFigure('Aft propulsion response', plots);
+        subplot(3,1,1);
+        plot(T,[control.propulsionCommand,control.propulsionForce],'LineWidth',1.5);
+        grid on; ylabel('Thrust (N)'); legend('Requested','Actual');
+        subplot(3,1,2);
+        plot(T,Y(:,7),'LineWidth',1.5); grid on; ylabel('Surge speed (m/s)');
+        subplot(3,1,3);
+        plot(T,cumtrapz(T,control.propulsionVehiclePower),'LineWidth',1.5);
+        grid on; ylabel('Vehicle work (J)'); xlabel('Time (s)');
+        title('Integral of F u; not shaft or electrical energy');
+        exportFigure(fig,outputDir,'AFT_PROPULSION',plots);
+    end
 
     if plots.allStates
         fig = createFigure('All simulation states', plots);
@@ -654,6 +686,7 @@ function plotSimulationResults(T, Y, tau1, tau2, control, energy, momentum, ...
         if strcmp(config.mode, 'dual')
             stateIndices = 1:20;
         end
+        if size(Y,2)>=21, stateIndices=[stateIndices,21]; end
         for index = stateIndices
             plot(T, Y(:,index), 'LineWidth', 2, 'DisplayName', labels{index});
         end
