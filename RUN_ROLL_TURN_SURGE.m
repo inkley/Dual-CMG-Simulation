@@ -14,7 +14,15 @@ assert(abs(m.planeDeg)<=90 && abs(m.headingDeg)<90, ...
     'This demonstrator requires |plane|<=90 and |heading|<90 degrees.');
 assert(strcmp(b.cmgConfig.mode,'dual') && strcmp(b.cmgConfig.dualController,'constant_speed'));
 m.speed.effectiveMass=b.auv.m+.93;
+[b.auv,b.params]=APPLY_INSTALLED_MASS_UNCERTAINTY( ...
+    b.auv,b.params,m.installedMassScales);
 cfg=b.cmgConfig; cfg.propulsion=AFT_PROPULSION_DEFAULTS();
+if m.actuatorCase~=0
+    cases=ACTUATOR_UNCERTAINTY_CASES();
+    assert(isscalar(m.actuatorCase) && m.actuatorCase==fix(m.actuatorCase) ...
+        && m.actuatorCase>=1 && m.actuatorCase<=numel(cases));
+    cfg.actuatorUncertainty=cases(m.actuatorCase).parameters;
+end
 cfg.thruster.enabled=true; cfg.thruster.commandMode='generalized_force'; cfg.hybrid.enabled=true;
 cfg.momentumManagement.enabled=false; cfg.external.rollDisturbance=0;
 cfg.hybrid.rollEnableAngle=deg2rad(.5); cfg.hybrid.rollDisableAngle=deg2rad(1.5);
@@ -72,7 +80,8 @@ while t<=maxTime
     row.rollFeasible=norm(B*feasibleRates-required)<1e-7 ...
         && max(abs(feasibleRates))<=cfg.limits.maxGimbalRate+1e-8;
     row.limited=[data.allocation.gimbalRateSaturated,data.actuator.gimbalAccelSaturated, ...
-        data.thrusterAllocation.saturated,data.propulsion.forceLimited,data.propulsion.forceRateLimited];
+        data.thrusterAllocation.saturated,data.propulsion.forceLimited,data.propulsion.forceRateLimited, ...
+        data.thruster.forceLimited,data.thruster.forceRateLimited];
     k=k+1; if k==1, histories=row; else, histories(k)=row; end
     if memory.phase=="COMPLETE", terminal="COMPLETE"; break; end
     if memory.phase=="ABORT" && t-memory.phaseStart>=m.abortCoastTime-1e-9
@@ -111,6 +120,14 @@ result.passes=terminal=="COMPLETE" && result.maxSurgeHeadingErrorDeg<=1 ...
 out=fullfile(root,'Working Results','roll_turn_surge', ...
     sprintf('plane_%g_heading_%g_dt_%g_timeout_%g',m.planeDeg,m.headingDeg,m.sampleTime,m.rollTimeout));
 if ~isfolder(out), mkdir(out); end
+if any(m.installedMassScales~=1)
+    out=fullfile(out,sprintf('mass_%g_roll_%g_transverse_%g',m.installedMassScales));
+    if ~isfolder(out), mkdir(out); end
+end
+if m.actuatorCase~=0
+    out=fullfile(out,['actuator_',char(cases(m.actuatorCase).name)]);
+    if ~isfolder(out), mkdir(out); end
+end
 save(fullfile(out,'mission.mat'),'result','history','m','b','cfg','x','t');
 writetable(result.events,fullfile(out,'events.csv')); disp(result);
 fig=figure('Visible','off','Position',[100 100 1200 850]); tiledlayout(2,2);

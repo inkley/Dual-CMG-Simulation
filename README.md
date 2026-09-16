@@ -90,6 +90,28 @@ limitations remain. No automatic return to nominal roll is attempted.
 
 ## Single and dual comparisons
 
+Gimbal/thruster response uncertainty: run `VERIFY_ACTUATOR_UNCERTAINTY` and
+`ACTUATOR_UNCERTAINTY_SWEEP`. Plant-only lag, gain and acceleration/slew
+perturbations leave nominal controller/allocation knowledge unchanged.
+See `ACTUATOR_UNCERTAINTY_FINDINGS.md` for case definitions and scope.
+
+Installed rigid-body sensitivity: run `INSTALLED_MASS_UNCERTAINTY_SWEEP`, the
+refinement command in `INSTALLED_MASS_UNCERTAINTY_FINDINGS.md`, then
+`VERIFY_INSTALLED_MASS_RESULTS`. Nine cases compare the dual 90-degree roll
+with the full +45-degree oblique roll-turn-surge mission, varying total mass
+by +/-10% and rigid-body roll/transverse inertia by +/-20%, without retuning.
+`VERIFY_INSTALLED_MASS_UNCERTAINTY` tests the property transformation.
+These are not rotor-inertia estimation errors or buoyancy/CG-offset tests.
+See `INSTALLED_MASS_UNCERTAINTY_FINDINGS.md` for conclusions and limitations.
+
+For controller-estimation uncertainty (distinct from known physical spin/servo
+mismatch), run `CMG_ESTIMATION_UNCERTAINTY_SWEEP`. It tests five-second single
+and dual roll cases with biased speed measurements and nominal controller
+inertia estimates while retaining true rotor properties in the plant.
+See `CMG_ESTIMATION_UNCERTAINTY_FINDINGS.md` for ranges, timing failures, and
+scope. `VERIFY_CMG_ESTIMATION` checks estimator separation; the results check
+also requires `CMG_ESTIMATION_UNCERTAINTY_SWEEP(.005)`.
+
 Run `AUV_SIM` once in single mode and once in symmetric dual mode, using
 consistent case, command, duration, and installed-mass assumptions. Then run:
 

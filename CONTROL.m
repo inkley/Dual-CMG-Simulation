@@ -5,10 +5,13 @@ function [Etadot, controlData] = CONTROL(t, state, gains, gyro1, gyro2, ...
 % those moments from physical mounting points; installed-module mass effects
 % must already be represented by the vehicle properties passed to REMUS.
 
+[estimatedState, estimatedGyro1, estimatedGyro2] = ...
+    CMG_CONTROLLER_ESTIMATE(state,gyro1,gyro2,cmgConfig);
 [tauC, commandedContpar, allocation] = CMG_ALLOCATE( ...
-    t, state, gains, gyro1, gyro2, d, loop, cmgConfig);
+    t, estimatedState, gains, estimatedGyro1, estimatedGyro2, d, loop, cmgConfig);
+plantConfig = ACTUATOR_PLANT_CONFIG(cmgConfig);
 [contpar, actuator] = applyGimbalActuatorDynamics( ...
-    commandedContpar, state, cmgConfig);
+    commandedContpar, state, plantConfig);
 [tau_cmg1, tau_cmg2] = CMG(gyro1, gyro2, contpar, state);
 [tau_unconstrained1, tau_unconstrained2] = CMG(gyro1, gyro2, ...
     allocation.unconstrainedCommand, state);
@@ -42,10 +45,14 @@ switch cmgConfig.thruster.commandMode
         error('Unsupported thruster command mode: %s', ...
             cmgConfig.thruster.commandMode);
 end
-thrusterConfig = cmgConfig;
+thrusterConfig = plantConfig;
 thrusterConfig.thruster.commandForce = thrusterAllocation.commandedForce;
+if isfield(plantConfig.thruster,'forceGain')
+    thrusterConfig.thruster.commandForce = thrusterConfig.thruster.commandForce(:) ...
+        .*plantConfig.thruster.forceGain(:);
+end
 thruster = VORTEX_RING_THRUSTERS(t,state,thrusterConfig);
-propulsion = AFT_PROPULSION(state,cmgConfig);
+propulsion = AFT_PROPULSION(state,plantConfig);
 
 Etadot = REMUS(t, auv, contpar, params, state, ...
     tauC, tau_cmg1, tau_cmg2,thruster,propulsion);
@@ -80,6 +87,8 @@ if nargout > 1
     controlData.commandedContpar = commandedContpar;
     controlData.actuator = actuator;
     controlData.allocation = allocation;
+    controlData.estimatedRotorSpeed = estimatedState([14,16]);
+    controlData.estimatedRotorInertia = [estimatedGyro1.I;estimatedGyro2.I];
     controlData.tau_cmg1 = tau_cmg1;
     controlData.tau_cmg2 = tau_cmg2;
     controlData.thruster = thruster;

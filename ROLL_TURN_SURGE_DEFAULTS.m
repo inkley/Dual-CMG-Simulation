@@ -13,4 +13,6 @@ m.angularRateAbort=deg2rad(5); m.abortCoastTime=5;
 m.speed.Kp=12; m.speed.Ki=2;
 m.speed.dragCoefficient=1.62; % matches current REMUS surge drag
 m.speed.effectiveMass=NaN; % assigned from saved vehicle mass + surge added mass
+m.installedMassScales=[1,1,1]; % true mass, Ix, Iy/Iz; controller retains nominal mass
+m.actuatorCase=0; % 0: unchanged baseline; 1:9: ACTUATOR_UNCERTAINTY_CASES
 end

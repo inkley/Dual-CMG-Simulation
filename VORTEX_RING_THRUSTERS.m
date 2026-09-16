@@ -18,7 +18,7 @@ if thrusterConfig.enabled
 end
 limitedCommand = min(max(commandedForce, ...
     -thrusterConfig.maxForce),thrusterConfig.maxForce);
-rawForceDot = (limitedCommand-actualForce)/thrusterConfig.timeConstant;
+rawForceDot = (limitedCommand-actualForce)./thrusterConfig.timeConstant;
 forceDot = min(max(rawForceDot,-thrusterConfig.maxForceRate), ...
     thrusterConfig.maxForceRate);
 
