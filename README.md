@@ -90,6 +90,20 @@ limitations remain. No automatic return to nominal roll is attempted.
 
 ## Single and dual comparisons
 
+Rotor geometry: `FLYWHEEL_GEOMETRY_SWEEP` reassembles rotor/vehicle properties
+for five solid-disk candidates against the user-supplied 5.8-inch tube envelope.
+See `FLYWHEEL_GEOMETRY_FINDINGS.md` for reproduction, demand definitions and
+the distinction between rotor-only clearance and assembled-module fit.
+
+Mechanical work/storage comparison: run `COMPARE_CMG_MECHANICAL_ENERGY` then
+`VERIFY_CMG_MECHANICAL_ENERGY`. See `CMG_MECHANICAL_ENERGY_FINDINGS.md`.
+Legacy transfer-proxy efficiency ratios are deprecated; the model does not
+yet support full motor-input or electrical-efficiency claims.
+
+Publication study plan: `IEEE_JOE_SIMULATION_MATRIX.md` defines the core
+claims, comparison cases, metrics, remaining experiments, and proposed figure
+set. It is a planning document, not a claim that pending studies are complete.
+
 Gimbal/thruster response uncertainty: run `VERIFY_ACTUATOR_UNCERTAINTY` and
 `ACTUATOR_UNCERTAINTY_SWEEP`. Plant-only lag, gain and acceleration/slew
 perturbations leave nominal controller/allocation knowledge unchanged.

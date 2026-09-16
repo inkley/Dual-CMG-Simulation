@@ -6,8 +6,8 @@ function energy = ENERGY_ANALYSIS(T, Y, tau1, tau2, control, gyro1, gyro2)
 % System boundary:
 % - Useful output is gross roll work, integral(abs(K_total*p)).
 % - Flywheel acceleration power is I*Omega*Omegadot.
-% - Because gimbal inertia, friction, gearing, and motor efficiency are not
-%   modeled, actual electrical input energy cannot yet be calculated.
+% - Finite gimbal dynamics exist, but this legacy proxy does not include their
+%   inertial work. Full motor-port mechanics/losses are not modeled.
 % - The ideal gimbal-transfer proxy is the mechanical power each CMG
 %   delivers to the vehicle, tau_cmg dot omega_body.
 % - Initial flywheel spin energy is reported but excluded from maneuver
@@ -47,8 +47,9 @@ energy.input.idealSystemGross = ...
     energy.input.flywheel1Gross + energy.input.flywheel2Gross ...
     + energy.input.idealGimbal1Gross + energy.input.idealGimbal2Gross;
 
-energy.efficiency.idealSystemPercent = safePercent( ...
-    energy.output.rollGross, energy.input.idealSystemGross);
+% Deprecated proxy fields retained for plotting/backward compatibility only.
+% Vehicle work is not an independent motor input: do not call this efficiency.
+energy.efficiency.idealSystemPercent = nan;
 energy.efficiency.electricalSystemPercent = nan;
 energy.efficiency.electricalEfficiencySupported = false;
 
@@ -63,14 +64,12 @@ energy.storedInitial.total = energy.storedInitial.flywheel1 ...
     + energy.storedInitial.flywheel2;
 energy.input.idealSystemGrossIncludingSpinup = ...
     energy.input.idealSystemGross + energy.storedInitial.total;
-energy.efficiency.idealIncludingSpinupPercent = safePercent( ...
-    energy.output.rollGross, ...
-    energy.input.idealSystemGrossIncludingSpinup);
+energy.efficiency.idealIncludingSpinupPercent = nan;
+energy.input.isLegacyTransferProxy = true;
 energy.assumptions = [ ...
-    "Ideal mechanical transfer only; electrical motor efficiency, " ...
-    "gimbal inertia, gearing, friction, windage, and regeneration are " ...
-    "not modeled. Initial flywheel spin energy is reported separately " ...
-    "and excluded from maneuver input energy."];
+    "Legacy transfer proxy, not motor input. Efficiency ratios are disabled. " ...
+    "Use CMG_MECHANICAL_ACCOUNTING for separate work/storage quantities. " ...
+    "Full motor-port work, losses and electrical consumption are unsupported."];
 end
 
 function metrics = perCMGMetrics(T, rollPower, gimbalGrossPower, flywheelPower)
@@ -78,8 +77,7 @@ function metrics = perCMGMetrics(T, rollPower, gimbalGrossPower, flywheelPower)
     metrics.bodyGross = trapz(T, gimbalGrossPower);
     metrics.flywheelGross = trapz(T, abs(flywheelPower));
     metrics.idealInputGross = metrics.bodyGross + metrics.flywheelGross;
-    metrics.idealEfficiencyPercent = safePercent( ...
-        metrics.rollGross, metrics.idealInputGross);
+    metrics.idealEfficiencyPercent = nan;
 end
 
 function percent = safePercent(outputEnergy, inputEnergy)
