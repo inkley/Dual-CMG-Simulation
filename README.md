@@ -90,6 +90,33 @@ limitations remain. No automatic return to nominal roll is attempted.
 
 ## Single and dual comparisons
 
+Bounded plane-pitch recovery: set `planePitchCorrection=true` in
+`RUN_ROLL_TURN_SURGE`, or run `PLANE_PITCH_CORRECTION_SWEEP` for all estimator
+cases. This extends CMG control to bounded pitch recovery after initial roll
+capture; legacy defaults and acceptance criteria are unchanged. See
+`PLANE_PITCH_CORRECTION_FINDINGS.md` for results, limits and regression checks.
+
+`INVESTIGATE_ROLL_FEASIBILITY` examines the speed-only case's sampling-sensitive
+pitch-neutral roll flag, including bounded least squares and local fine
+integration. See `ROLL_FEASIBILITY_DIAGNOSTIC_FINDINGS.md`.
+
+`EXACT_INERTIA_KNOWLEDGE_COMPARISON` compares nominal/exact allocator inertia
+on the same two unequal-inertia mission plants. See
+`EXACT_INERTIA_KNOWLEDGE_FINDINGS.md` for the diagnostic and refinement tests.
+
+To isolate full-mission speed bias versus true rotor-inertia mismatch, run
+`MISSION_ESTIMATION_ABLATION` after the original mission uncertainty sweep.
+See `MISSION_ESTIMATION_ABLATION_FINDINGS.md` for interpretation and refinement.
+
+Full-mission rotor estimation uncertainty: `MISSION_ESTIMATION_SWEEP` runs
+nominal plus eight common/opposite bias/inertia-error corners with unchanged
+roll-turn-surge control. See `MISSION_ESTIMATION_FINDINGS.md` for scope/results.
+
+Matched initial resources: `MATCHED_ENERGY_COMPARISON` tests two single/dual
+pairs with common initial spin-speed magnitude and matched total rotor mass,
+axial inertia and stored spin energy. See `MATCHED_ENERGY_FINDINGS.md` for
+remaining architecture differences and verification commands.
+
 Rotor geometry: `FLYWHEEL_GEOMETRY_SWEEP` reassembles rotor/vehicle properties
 for five solid-disk candidates against the user-supplied 5.8-inch tube envelope.
 See `FLYWHEEL_GEOMETRY_FINDINGS.md` for reproduction, demand definitions and

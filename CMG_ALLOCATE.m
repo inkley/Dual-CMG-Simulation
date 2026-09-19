@@ -55,6 +55,21 @@ tauC.YD = 0;
 tauC.ZD = 0;
 tauC.KD = desiredRollMoment;
 tauC.MD = 0;
+% Candidate plane-normal recovery: n dot body-x decreases with positive q
+% when body-z is aligned with n. Only enable after initial roll capture.
+if strcmp(cmgConfig.mode,'dual') && isfield(cmgConfig,'hybrid') ...
+        && isfield(cmgConfig.hybrid,'planePitchCorrection') ...
+        && cmgConfig.hybrid.planePitchCorrection ...
+        && isfield(d,'hybrid') && isfield(d.hybrid,'missionPhase') ...
+        && any(d.hybrid.missionPhase==["TURN","SURGE","COMPLETE"])
+    psi=state(6);
+    bodyX=[cos(psi)*cos(theta);sin(psi)*cos(theta);-sin(theta)];
+    normal=d.hybrid.planeNormalNED(:); normal=normal/norm(normal);
+    planeTilt=asin(min(1,max(-1,dot(normal,bodyX))));
+    h=cmgConfig.hybrid;
+    tauC.MD=min(max(h.planePitchKp*planeTilt-h.planePitchKd*q, ...
+        -h.planePitchMaxMoment),h.planePitchMaxMoment);
+end
 tauC.ND = 0;
 tauC.KFeedback = feedbackRollMoment;
 tauC.KMomentumUnload = momentumUnloadMoment;

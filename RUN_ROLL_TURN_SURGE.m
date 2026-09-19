@@ -17,6 +17,22 @@ m.speed.effectiveMass=b.auv.m+.93;
 [b.auv,b.params]=APPLY_INSTALLED_MASS_UNCERTAINTY( ...
     b.auv,b.params,m.installedMassScales);
 cfg=b.cmgConfig; cfg.propulsion=AFT_PROPULSION_DEFAULTS();
+if m.estimationCase~=0
+    estimates=MISSION_ESTIMATION_CASES();
+    assert(isscalar(m.estimationCase) && m.estimationCase==fix(m.estimationCase) ...
+        && m.estimationCase>=1 && m.estimationCase<=numel(estimates));
+    est=estimates(m.estimationCase);
+    cfg.estimation.speedScaleBias=est.bias;
+    cfg.estimation.rotorInertia=[b.gyro1.I,b.gyro2.I];
+    b.gyro1.I=b.gyro1.I*(1+est.inertiaError(1));
+    b.gyro2.I=b.gyro2.I*(1+est.inertiaError(2));
+    % Momentum-model uncertainty only; installed rigid-body inertia is fixed.
+end
+assert(islogical(m.exactRotorInertiaKnowledge) && isscalar(m.exactRotorInertiaKnowledge));
+if m.exactRotorInertiaKnowledge
+    assert(m.estimationCase~=0,'Exact-inertia diagnostic requires an estimation case.');
+    cfg.estimation.rotorInertia=[b.gyro1.I,b.gyro2.I];
+end
 if m.actuatorCase~=0
     cases=ACTUATOR_UNCERTAINTY_CASES();
     assert(isscalar(m.actuatorCase) && m.actuatorCase==fix(m.actuatorCase) ...
@@ -28,6 +44,9 @@ cfg.momentumManagement.enabled=false; cfg.external.rollDisturbance=0;
 cfg.hybrid.rollEnableAngle=deg2rad(.5); cfg.hybrid.rollDisableAngle=deg2rad(1.5);
 cfg.hybrid.rollEnableRate=deg2rad(.5); cfg.hybrid.rollDisableRate=deg2rad(3);
 cfg.hybrid.KpLateral=20; cfg.hybrid.KdLateral=30; cfg.hybrid.KpHeading=2; cfg.hybrid.KdHeading=6;
+cfg.hybrid.planePitchCorrection=m.planePitchCorrection;
+cfg.hybrid.planePitchKp=.5; cfg.hybrid.planePitchKd=2;
+cfg.hybrid.planePitchMaxMoment=.02; % Nm; correction request bound, not new actuator authority
 d=b.d; d.rollToPlane.bidirectionalThruster=true;
 d.hybrid.lateralDisplacement=0; d.hybrid.initialPositionNED=zeros(3,1);
 x=b.Y_OUT(1,:).'; x(1:12)=0; x(17:21)=0;
@@ -53,6 +72,8 @@ while t<=maxTime
         speed.saturated=false; speed.rawForce=0;
     end
     reference=d; reference.rollToPlane.desiredLateralDirectionNED=cmd.lateral;
+    reference.hybrid.missionPhase=memory.phase;
+    reference.hybrid.planeNormalNED=cross([1;0;0],cmd.lateral);
     reference.hybrid.desiredHeadingNED=cmd.heading;
     reference.hybrid.lateralDirectionNED=cmd.lateral;
     if memory.phase=="SURGE" || memory.phase=="COMPLETE" || ...
@@ -73,6 +94,8 @@ while t<=maxTime
     row.gate=data.hybrid.activation; row.speedSaturated=speed.saturated;
     row.thrusterForce=data.thruster.actualForce.';
     row.gimbalRate=data.actuator.actualGimbalRate.'; row.gimbalAccel=data.actuator.gimbalAccel.';
+    row.requestedCmgMoment=data.requestedMoment.';
+    row.achievedCmgMoment=data.achievedMoment.';
     h=[b.gyro1.I*x(14),b.gyro2.I*x(16)];
     B=-[h.*cos(x([13,15]).');h.*sin(x([13,15]).')];
     required=data.requestedMoment(1:2)-B*[x(12);x(12)];
@@ -126,6 +149,18 @@ if any(m.installedMassScales~=1)
 end
 if m.actuatorCase~=0
     out=fullfile(out,['actuator_',char(cases(m.actuatorCase).name)]);
+    if ~isfolder(out), mkdir(out); end
+end
+if m.estimationCase~=0
+    out=fullfile(out,['estimation_',char(estimates(m.estimationCase).name)]);
+    if ~isfolder(out), mkdir(out); end
+end
+if m.exactRotorInertiaKnowledge
+    out=fullfile(out,'exact_inertia');
+    if ~isfolder(out), mkdir(out); end
+end
+if m.planePitchCorrection
+    out=fullfile(out,'plane_pitch_correction');
     if ~isfolder(out), mkdir(out); end
 end
 save(fullfile(out,'mission.mat'),'result','history','m','b','cfg','x','t');
