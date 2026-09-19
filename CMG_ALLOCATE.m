@@ -80,6 +80,11 @@ if isfield(cmgConfig,'external') ...
         && isfield(cmgConfig.external,'rollDisturbance')
     tauC.KDisturbance = cmgConfig.external.rollDisturbance;
 end
+if isfield(cmgConfig,'external') && isfield(cmgConfig.external,'sinusoidalRoll')
+    % External plant load only; it is not supplied as feedforward to KD/MD.
+    tauC.KDisturbance=tauC.KDisturbance+ ...
+        SINUSOIDAL_ROLL_LOAD(t,cmgConfig.external.sinusoidalRoll);
+end
 
 allocation.matrix = nan(2);
 allocation.determinant = nan;

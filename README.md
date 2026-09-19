@@ -253,6 +253,34 @@ regenerate and check results before using them in a manuscript.
 
 ## Development and reproducibility
 
+Bounded synthetic roll-disturbance experiments are defined in
+`ROLL_DISTURBANCE_TEST_FINDINGS.md` and `ROLL_DISTURBANCE_TEST_PLAN.m`.
+`RUN_ROLL_DISTURBANCE_TESTS` runs only the verified zero-load reference by default;
+passing `true` opts into the nonzero feedback/passive comparison matrix.
+The nine-case matrix has been executed: all runs completed without recorded
+actuator-limit flags, but only one of four loaded feedback cases passed the
+predeclared tracking screen. See the findings for limits on these claims.
+`REPORT_ROLL_DISTURBANCE_TESTS` verifies the applied loads and generates the
+feedback/passive comparison figure from saved results.
+`EVALUATE_ROLL_DISTURBANCE_REJECTION` and `REPORT_ROLL_REJECTION_DIAGNOSTICS`
+provide finer-step, repeated-cycle, and constant-bias momentum diagnostics.
+See `ROLL_REJECTION_MOMENTUM_FINDINGS.md`: zero-mean excursions repeat, while a
+biased load reaches a pre-singularity diagnostic stop; sustained rejection is
+not established. Controller gains and the original tracking criteria are unchanged.
+`ROLL_DISTURBANCE_ENVELOPE.m` defines the provisional finite-duration synthetic
+load specification; `VERIFY_ROLL_DISTURBANCE_ENVELOPE` runs its nonlinear corner
+checks. Scope, momentum reserve, and bias-duration restrictions are documented
+in `ROLL_DISTURBANCE_ENVELOPE.md`. This does not change the main-driver defaults
+or turn previous outside-envelope tracking failures into passes.
+`DISTURBANCE_MISMATCH_SWEEP` applies selected rotor-estimation/inertia and
+gimbal-servo perturbations at the 15-second envelope endpoint, with both bias
+signs. It passed 11/12 cases; the nominal envelope is not yet mismatch-robust.
+See `DISTURBANCE_MISMATCH_FINDINGS.md` and its verification/refinement scripts.
+The retained unequal-inertia failure is diagnosed in
+`DISTURBANCE_INERTIA_DIAGNOSIS.md`: steering sensitivity amplifies nominal-inertia
+estimation error; an exact-knowledge same-plant diagnostic passes. Production
+controller settings and the failed-case classification are unchanged.
+
 Use Git commits to record meaningful model changes rather than suffixing copies
 of every script. For results intended for publication, record the commit ID,
 MATLAB release, configuration, solver settings, and acceptance criteria with
