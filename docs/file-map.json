@@ -1,0 +1,635 @@
+[
+  {
+    "old": "ACTUATOR_PLANT_CONFIG.m",
+    "new": "src/model/ACTUATOR_PLANT_CONFIG.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ACTUATOR_UNCERTAINTY_CASES.m",
+    "new": "config/ACTUATOR_UNCERTAINTY_CASES.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ACTUATOR_UNCERTAINTY_SWEEP.m",
+    "new": "studies/uncertainty/ACTUATOR_UNCERTAINTY_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "AFT_PROPULSION.m",
+    "new": "src/model/AFT_PROPULSION.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "AFT_PROPULSION_ANALYSIS.m",
+    "new": "studies/mission/AFT_PROPULSION_ANALYSIS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "AFT_PROPULSION_DEFAULTS.m",
+    "new": "config/AFT_PROPULSION_DEFAULTS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "APPLY_INSTALLED_MASS_UNCERTAINTY.m",
+    "new": "src/model/APPLY_INSTALLED_MASS_UNCERTAINTY.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ASSEMBLE_VEHICLE_MASS_PROPERTIES.m",
+    "new": "src/model/ASSEMBLE_VEHICLE_MASS_PROPERTIES.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG.m",
+    "new": "src/model/CMG.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_ALLOCATE.m",
+    "new": "src/control/CMG_ALLOCATE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_CAPACITY_ANALYSIS.m",
+    "new": "src/analysis/CMG_CAPACITY_ANALYSIS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_CONTROLLER_ESTIMATE.m",
+    "new": "src/control/CMG_CONTROLLER_ESTIMATE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_ENVELOPE_ANALYSIS.m",
+    "new": "src/analysis/CMG_ENVELOPE_ANALYSIS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_ESTIMATION_UNCERTAINTY_SWEEP.m",
+    "new": "studies/uncertainty/CMG_ESTIMATION_UNCERTAINTY_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "CMG_HARDWARE_SCREENING.m",
+    "new": "src/analysis/CMG_HARDWARE_SCREENING.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_MECHANICAL_ACCOUNTING.m",
+    "new": "src/analysis/CMG_MECHANICAL_ACCOUNTING.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "CMG_MOMENTUM_COUPLING_ANALYSIS.m",
+    "new": "src/analysis/CMG_MOMENTUM_COUPLING_ANALYSIS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "COMPARE_CMG_BASELINES.m",
+    "new": "studies/roll/COMPARE_CMG_BASELINES.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "COMPARE_CMG_MECHANICAL_ENERGY.m",
+    "new": "studies/roll/COMPARE_CMG_MECHANICAL_ENERGY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "CONTROL.m",
+    "new": "src/model/CONTROL.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "DIAGNOSE_DISTURBANCE_INERTIA_FAILURE.m",
+    "new": "studies/disturbance/DIAGNOSE_DISTURBANCE_INERTIA_FAILURE.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "DISTURBANCE_MISMATCH_SWEEP.m",
+    "new": "studies/disturbance/DISTURBANCE_MISMATCH_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "DUAL_CMG_CONDITIONING_ANALYSIS.m",
+    "new": "src/analysis/DUAL_CMG_CONDITIONING_ANALYSIS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "DUAL_CMG_MISMATCH_SWEEP.m",
+    "new": "studies/uncertainty/DUAL_CMG_MISMATCH_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "ENERGY_ANALYSIS.m",
+    "new": "src/analysis/ENERGY_ANALYSIS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "EVALUATE_ROLL_DISTURBANCE_REJECTION.m",
+    "new": "studies/disturbance/EVALUATE_ROLL_DISTURBANCE_REJECTION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "EXACT_INERTIA_KNOWLEDGE_COMPARISON.m",
+    "new": "studies/uncertainty/EXACT_INERTIA_KNOWLEDGE_COMPARISON.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "FLYWHEEL_GEOMETRY.m",
+    "new": "src/model/FLYWHEEL_GEOMETRY.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "FLYWHEEL_GEOMETRY_SWEEP.m",
+    "new": "studies/roll/FLYWHEEL_GEOMETRY_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "HYBRID_COORDINATED_MANEUVER_ANALYSIS.m",
+    "new": "studies/mission/HYBRID_COORDINATED_MANEUVER_ANALYSIS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "HYBRID_MANEUVER_CONTROL.m",
+    "new": "src/control/HYBRID_MANEUVER_CONTROL.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "HYBRID_MANEUVER_SWEEP.m",
+    "new": "studies/mission/HYBRID_MANEUVER_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "INSTALLED_MASS_UNCERTAINTY_SWEEP.m",
+    "new": "studies/uncertainty/INSTALLED_MASS_UNCERTAINTY_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "INVESTIGATE_ROLL_FEASIBILITY.m",
+    "new": "studies/uncertainty/INVESTIGATE_ROLL_FEASIBILITY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "MATCHED_ENERGY_COMPARISON.m",
+    "new": "studies/roll/MATCHED_ENERGY_COMPARISON.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "MISSION_ESTIMATION_ABLATION.m",
+    "new": "studies/uncertainty/MISSION_ESTIMATION_ABLATION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "MISSION_ESTIMATION_CASES.m",
+    "new": "config/MISSION_ESTIMATION_CASES.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "MISSION_ESTIMATION_SWEEP.m",
+    "new": "studies/uncertainty/MISSION_ESTIMATION_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "MOMENTUM_UNLOADING_ANALYSIS.m",
+    "new": "studies/roll/MOMENTUM_UNLOADING_ANALYSIS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "OBLIQUE_CMG_MOMENTUM_ENVELOPE.m",
+    "new": "studies/mission/OBLIQUE_CMG_MOMENTUM_ENVELOPE.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "OBLIQUE_PRELOAD_SHAPING_SWEEP.m",
+    "new": "studies/mission/OBLIQUE_PRELOAD_SHAPING_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "PLANE_PITCH_CORRECTION_SWEEP.m",
+    "new": "studies/uncertainty/PLANE_PITCH_CORRECTION_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "REFINE_DISTURBANCE_INERTIA_FAILURE.m",
+    "new": "studies/disturbance/REFINE_DISTURBANCE_INERTIA_FAILURE.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "REMUS.m",
+    "new": "src/model/REMUS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "REPEATED_ROLL_MOMENTUM_ANALYSIS.m",
+    "new": "studies/roll/REPEATED_ROLL_MOMENTUM_ANALYSIS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "REPORT_DISTURBANCE_INERTIA_DIAGNOSIS.m",
+    "new": "studies/disturbance/REPORT_DISTURBANCE_INERTIA_DIAGNOSIS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "REPORT_INERTIA_ESTIMATION_BOUNDS.m",
+    "new": "studies/disturbance/REPORT_INERTIA_ESTIMATION_BOUNDS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "REPORT_ROLL_DISTURBANCE_TESTS.m",
+    "new": "studies/disturbance/REPORT_ROLL_DISTURBANCE_TESTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "REPORT_ROLL_REJECTION_DIAGNOSTICS.m",
+    "new": "studies/disturbance/REPORT_ROLL_REJECTION_DIAGNOSTICS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "ROLL_DISTURBANCE_ENVELOPE.m",
+    "new": "config/ROLL_DISTURBANCE_ENVELOPE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ROLL_DISTURBANCE_TEST_PLAN.m",
+    "new": "config/ROLL_DISTURBANCE_TEST_PLAN.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ROLL_FEASIBILITY_DIAGNOSTIC.m",
+    "new": "src/analysis/ROLL_FEASIBILITY_DIAGNOSTIC.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ROLL_TO_PLANE_ALIGNMENT.m",
+    "new": "src/control/ROLL_TO_PLANE_ALIGNMENT.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ROLL_TO_PLANE_ALIGNMENT_SWEEP.m",
+    "new": "studies/mission/ROLL_TO_PLANE_ALIGNMENT_SWEEP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "ROLL_TO_PLANE_COMMAND.m",
+    "new": "src/control/ROLL_TO_PLANE_COMMAND.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ROLL_TURN_SURGE_DEFAULTS.m",
+    "new": "config/ROLL_TURN_SURGE_DEFAULTS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "ROLL_TURN_SURGE_SUPERVISOR.m",
+    "new": "src/control/ROLL_TURN_SURGE_SUPERVISOR.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "RUN_ROLL_DISTURBANCE_TESTS.m",
+    "new": "studies/disturbance/RUN_ROLL_DISTURBANCE_TESTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "RUN_ROLL_TURN_SURGE.m",
+    "new": "studies/mission/RUN_ROLL_TURN_SURGE.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "SINUSOIDAL_ROLL_LOAD.m",
+    "new": "src/model/SINUSOIDAL_ROLL_LOAD.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "SURGE_SPEED_CONTROL.m",
+    "new": "src/control/SURGE_SPEED_CONTROL.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "SWEEP_DISTURBANCE_INERTIA_ESTIMATES.m",
+    "new": "studies/disturbance/SWEEP_DISTURBANCE_INERTIA_ESTIMATES.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "THRUSTER_ALLOCATE.m",
+    "new": "src/control/THRUSTER_ALLOCATE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "THRUSTER_ALLOCATION_ANALYSIS.m",
+    "new": "studies/mission/THRUSTER_ALLOCATION_ANALYSIS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "TORQUE.m",
+    "new": "src/model/TORQUE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_ACTUATOR_UNCERTAINTY.m",
+    "new": "tests/VERIFY_ACTUATOR_UNCERTAINTY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_ACTUATOR_UNCERTAINTY_RESULTS.m",
+    "new": "tests/VERIFY_ACTUATOR_UNCERTAINTY_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_AFT_PROPULSION.m",
+    "new": "tests/VERIFY_AFT_PROPULSION.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_ALLOCATION_SCOPE_DECISION.m",
+    "new": "tests/VERIFY_ALLOCATION_SCOPE_DECISION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_CMG_ESTIMATION.m",
+    "new": "tests/VERIFY_CMG_ESTIMATION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_CMG_MECHANICAL_ENERGY.m",
+    "new": "tests/VERIFY_CMG_MECHANICAL_ENERGY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_CMG_MOMENTUM_EXCHANGE.m",
+    "new": "tests/VERIFY_CMG_MOMENTUM_EXCHANGE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_CMG_TORQUE_SIGNS.m",
+    "new": "tests/VERIFY_CMG_TORQUE_SIGNS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_CMG_UNCERTAINTY_RESULTS.m",
+    "new": "tests/VERIFY_CMG_UNCERTAINTY_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_DISTURBANCE_MISMATCH_RESULTS.m",
+    "new": "tests/VERIFY_DISTURBANCE_MISMATCH_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_DUAL_CMG_CONDITIONING.m",
+    "new": "tests/VERIFY_DUAL_CMG_CONDITIONING.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_EXACT_INERTIA_KNOWLEDGE.m",
+    "new": "tests/VERIFY_EXACT_INERTIA_KNOWLEDGE.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_FLYWHEEL_GEOMETRY.m",
+    "new": "tests/VERIFY_FLYWHEEL_GEOMETRY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_INSTALLED_MASS_RESULTS.m",
+    "new": "tests/VERIFY_INSTALLED_MASS_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_INSTALLED_MASS_UNCERTAINTY.m",
+    "new": "tests/VERIFY_INSTALLED_MASS_UNCERTAINTY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_MASS_PROPERTY_ASSEMBLY.m",
+    "new": "tests/VERIFY_MASS_PROPERTY_ASSEMBLY.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_MATCHED_ENERGY.m",
+    "new": "tests/VERIFY_MATCHED_ENERGY.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_MISSION_ESTIMATION_ABLATION.m",
+    "new": "tests/VERIFY_MISSION_ESTIMATION_ABLATION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_MISSION_ESTIMATION_RESULTS.m",
+    "new": "tests/VERIFY_MISSION_ESTIMATION_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_OBLIQUE_SHAPING_RESULTS.m",
+    "new": "tests/VERIFY_OBLIQUE_SHAPING_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_PLANE_PITCH_CORRECTION.m",
+    "new": "tests/VERIFY_PLANE_PITCH_CORRECTION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_PLANE_PITCH_CORRECTION_RESULTS.m",
+    "new": "tests/VERIFY_PLANE_PITCH_CORRECTION_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_ROLL_DISTURBANCE_ENVELOPE.m",
+    "new": "studies/disturbance/VERIFY_ROLL_DISTURBANCE_ENVELOPE.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_ROLL_DISTURBANCE_SETUP.m",
+    "new": "tests/VERIFY_ROLL_DISTURBANCE_SETUP.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_ROLL_FEASIBILITY_DIAGNOSTIC.m",
+    "new": "tests/VERIFY_ROLL_FEASIBILITY_DIAGNOSTIC.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_ROLL_TO_PLANE_COMMAND.m",
+    "new": "tests/VERIFY_ROLL_TO_PLANE_COMMAND.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_ROLL_TURN_SURGE.m",
+    "new": "tests/VERIFY_ROLL_TURN_SURGE.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_ROLL_TURN_SURGE_RESULTS.m",
+    "new": "tests/VERIFY_ROLL_TURN_SURGE_RESULTS.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "VERIFY_THRUSTER_ALLOCATION.m",
+    "new": "tests/VERIFY_THRUSTER_ALLOCATION.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VERIFY_VORTEX_RING_THRUSTERS.m",
+    "new": "tests/VERIFY_VORTEX_RING_THRUSTERS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VORTEX_RING_THRUSTERS.m",
+    "new": "src/model/VORTEX_RING_THRUSTERS.m",
+    "pathLookupChanged": false
+  },
+  {
+    "old": "VORTEX_RING_THRUSTER_INTEGRATION.m",
+    "new": "studies/mission/VORTEX_RING_THRUSTER_INTEGRATION.m",
+    "pathLookupChanged": true
+  },
+  {
+    "old": "ACTUATOR_UNCERTAINTY_FINDINGS.md",
+    "new": "docs/findings/uncertainty/ACTUATOR_UNCERTAINTY_FINDINGS.md"
+  },
+  {
+    "old": "AFT_PROPULSION_FINDINGS.md",
+    "new": "docs/findings/mission/AFT_PROPULSION_FINDINGS.md"
+  },
+  {
+    "old": "ALLOCATION_SCOPE_DECISION.md",
+    "new": "docs/publication/ALLOCATION_SCOPE_DECISION.md"
+  },
+  {
+    "old": "CMG_ESTIMATION_UNCERTAINTY_FINDINGS.md",
+    "new": "docs/findings/uncertainty/CMG_ESTIMATION_UNCERTAINTY_FINDINGS.md"
+  },
+  {
+    "old": "CMG_LIMIT_ASSUMPTIONS.md",
+    "new": "docs/assumptions/CMG_LIMIT_ASSUMPTIONS.md"
+  },
+  {
+    "old": "CMG_MECHANICAL_ENERGY_FINDINGS.md",
+    "new": "docs/findings/roll/CMG_MECHANICAL_ENERGY_FINDINGS.md"
+  },
+  {
+    "old": "DISTURBANCE_INERTIA_DIAGNOSIS.md",
+    "new": "docs/findings/disturbance/DISTURBANCE_INERTIA_DIAGNOSIS.md"
+  },
+  {
+    "old": "DISTURBANCE_MISMATCH_FINDINGS.md",
+    "new": "docs/findings/disturbance/DISTURBANCE_MISMATCH_FINDINGS.md"
+  },
+  {
+    "old": "DUAL_CMG_BASELINE.md",
+    "new": "docs/findings/roll/DUAL_CMG_BASELINE.md"
+  },
+  {
+    "old": "DUAL_CMG_MISMATCH_RESULTS.md",
+    "new": "docs/findings/uncertainty/DUAL_CMG_MISMATCH_RESULTS.md"
+  },
+  {
+    "old": "EXACT_INERTIA_KNOWLEDGE_FINDINGS.md",
+    "new": "docs/findings/uncertainty/EXACT_INERTIA_KNOWLEDGE_FINDINGS.md"
+  },
+  {
+    "old": "FLYWHEEL_GEOMETRY_FINDINGS.md",
+    "new": "docs/findings/roll/FLYWHEEL_GEOMETRY_FINDINGS.md"
+  },
+  {
+    "old": "HYBRID_COORDINATED_MANEUVER_FINDINGS.md",
+    "new": "docs/findings/mission/HYBRID_COORDINATED_MANEUVER_FINDINGS.md"
+  },
+  {
+    "old": "HYBRID_MANEUVER_SWEEP_FINDINGS.md",
+    "new": "docs/findings/mission/HYBRID_MANEUVER_SWEEP_FINDINGS.md"
+  },
+  {
+    "old": "IEEE_JOE_FIRST_DRAFT_FREEZE.md",
+    "new": "docs/publication/IEEE_JOE_FIRST_DRAFT_FREEZE.md"
+  },
+  {
+    "old": "IEEE_JOE_SIMULATION_MATRIX.md",
+    "new": "docs/archive/IEEE_JOE_SIMULATION_MATRIX.md"
+  },
+  {
+    "old": "INERTIA_ESTIMATION_BOUNDS.md",
+    "new": "docs/assumptions/INERTIA_ESTIMATION_BOUNDS.md"
+  },
+  {
+    "old": "INSTALLED_MASS_PROPERTY_ASSUMPTIONS.md",
+    "new": "docs/assumptions/INSTALLED_MASS_PROPERTY_ASSUMPTIONS.md"
+  },
+  {
+    "old": "INSTALLED_MASS_UNCERTAINTY_FINDINGS.md",
+    "new": "docs/findings/uncertainty/INSTALLED_MASS_UNCERTAINTY_FINDINGS.md"
+  },
+  {
+    "old": "MATCHED_ENERGY_FINDINGS.md",
+    "new": "docs/findings/roll/MATCHED_ENERGY_FINDINGS.md"
+  },
+  {
+    "old": "MISSION_ESTIMATION_ABLATION_FINDINGS.md",
+    "new": "docs/findings/uncertainty/MISSION_ESTIMATION_ABLATION_FINDINGS.md"
+  },
+  {
+    "old": "MISSION_ESTIMATION_FINDINGS.md",
+    "new": "docs/findings/uncertainty/MISSION_ESTIMATION_FINDINGS.md"
+  },
+  {
+    "old": "MOMENTUM_UNLOADING_FINDINGS.md",
+    "new": "docs/findings/roll/MOMENTUM_UNLOADING_FINDINGS.md"
+  },
+  {
+    "old": "OBLIQUE_CMG_MOMENTUM_FINDINGS.md",
+    "new": "docs/findings/mission/OBLIQUE_CMG_MOMENTUM_FINDINGS.md"
+  },
+  {
+    "old": "OBLIQUE_PRELOAD_SHAPING_FINDINGS.md",
+    "new": "docs/findings/mission/OBLIQUE_PRELOAD_SHAPING_FINDINGS.md"
+  },
+  {
+    "old": "PLANE_PITCH_CORRECTION_FINDINGS.md",
+    "new": "docs/findings/uncertainty/PLANE_PITCH_CORRECTION_FINDINGS.md"
+  },
+  {
+    "old": "README.md",
+    "new": "docs/archive/DEVELOPMENT_GUIDE.md"
+  },
+  {
+    "old": "REPEATED_ROLL_FINDINGS.md",
+    "new": "docs/findings/roll/REPEATED_ROLL_FINDINGS.md"
+  },
+  {
+    "old": "ROLL_DISTURBANCE_ENVELOPE.md",
+    "new": "docs/assumptions/ROLL_DISTURBANCE_ENVELOPE.md"
+  },
+  {
+    "old": "ROLL_DISTURBANCE_TEST_FINDINGS.md",
+    "new": "docs/findings/disturbance/ROLL_DISTURBANCE_TEST_FINDINGS.md"
+  },
+  {
+    "old": "ROLL_FEASIBILITY_DIAGNOSTIC_FINDINGS.md",
+    "new": "docs/findings/uncertainty/ROLL_FEASIBILITY_DIAGNOSTIC_FINDINGS.md"
+  },
+  {
+    "old": "ROLL_REJECTION_MOMENTUM_FINDINGS.md",
+    "new": "docs/findings/disturbance/ROLL_REJECTION_MOMENTUM_FINDINGS.md"
+  },
+  {
+    "old": "ROLL_TO_PLANE_ALIGNMENT_FINDINGS.md",
+    "new": "docs/findings/mission/ROLL_TO_PLANE_ALIGNMENT_FINDINGS.md"
+  },
+  {
+    "old": "ROLL_TO_PLANE_FINDINGS.md",
+    "new": "docs/findings/mission/ROLL_TO_PLANE_FINDINGS.md"
+  },
+  {
+    "old": "ROLL_TURN_SURGE_FINDINGS.md",
+    "new": "docs/findings/mission/ROLL_TURN_SURGE_FINDINGS.md"
+  },
+  {
+    "old": "THRUSTER_ALLOCATION_FINDINGS.md",
+    "new": "docs/findings/mission/THRUSTER_ALLOCATION_FINDINGS.md"
+  },
+  {
+    "old": "VORTEX_RING_THRUSTER_FINDINGS.md",
+    "new": "docs/findings/mission/VORTEX_RING_THRUSTER_FINDINGS.md"
+  }
+]

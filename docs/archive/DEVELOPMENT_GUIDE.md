@@ -1,0 +1,308 @@
+# CMG AUV Simulation
+
+> Archived pre-reorganization guide. Some status statements below are historical.
+> Use the repository README and docs/README.md for current navigation and workflow.
+
+MATLAB research model for single- and dual-control-moment-gyroscope (CMG)
+roll actuation of an autonomous underwater vehicle. The hybrid-control concept
+uses CMGs to orient the vehicle's maneuver plane, then fixed lateral thrusters
+to generate sway and yaw. Aft-propulsion travel is a planned extension.
+
+Author: Tyler J. Inkley. This is ongoing modeling and simulation research
+intended to support an IEEE Journal of Oceanic Engineering manuscript; it is
+not a hardware-validated controller or an accepted publication.
+
+## Requirements
+
+- MATLAB. Development runs have used MATLAB R2025b; older releases have not
+  been validated. No Simulink model is required.
+- Open this repository as MATLAB's current folder so its functions are on
+  the MATLAB path.
+- For figure-window compatibility, set `plotConfig.windowStyle = 'normal'`
+  in `AUV_SIM.m` if the container/docking option causes problems.
+
+## Quick start
+
+1. Open `AUV_SIM.m` and review its **USER CONFIGURATION** section.
+2. Select `cmgConfig.mode = 'single'` or `'dual'`. The current default is dual
+   with the `constant_speed` controller.
+3. Keep `simConfig.case = 'VFR'` for the vehicle-from-rest baseline.
+4. Run the driver:
+
+   ```matlab
+   AUV_SIM
+   ```
+
+The driver clears workspace variables and closes figures at startup. Set
+configuration values **in the script**, not in the command window beforehand.
+It saves figures, diagnostics, and `simulation_result.mat` beneath
+`Working Results/`, creating the directory as needed. Repeating a configuration
+overwrites its previous outputs; preserve important runs separately.
+
+The default command mode is `roll_to_plane`, with a downward desired lateral
+direction. For a direct 90-degree roll command, set:
+
+```matlab
+simConfig.commandMode = 'direct_roll';
+simConfig.directRollAngle = pi/2;
+```
+
+Other initial-condition cases are `FSV` (forward surge velocity), `STM`
+(standard turn maneuver), and `SPF` (simple path following). These labels do
+not imply that complete mission-level behavior has been validated.
+
+## Optional aft propulsion
+
+The default CMG baseline keeps propulsion disabled. To include a constant
+forward thrust, edit these settings in `AUV_SIM.m`:
+
+```matlab
+cmgConfig.propulsion.enabled = true;
+cmgConfig.propulsion.commandForce = 5; % N; direct thrust, not speed control
+```
+
+Enabled runs add state 21 (actual aft thrust) and save beneath the case's
+`aft_propulsion/` subfolder, preserving the CMG-only baseline output path.
+The model uses forward-only net thrust, finite lag and slew, and a mounting
+moment computed as r cross F. The default centerline mounting adds surge only;
+shaft-reaction torque and propeller inflow/RPM physics are not represented.
+`AFT_PROPULSION_DEFAULTS.m` holds provisional settings, not hardware ratings.
+Run `VERIFY_AFT_PROPULSION` and `AFT_PROPULSION_ANALYSIS` for actuator tests and
+isolated surge/shutdown validation. See `AFT_PROPULSION_FINDINGS.md`.
+This does not yet implement speed regulation or roll-turn-surge sequencing.
+
+## Complete roll-turn-surge demonstration
+
+Run `RUN_ROLL_TURN_SURGE` for a from-rest roll, shaped in-plane turn, and
+speed-controlled cruise segment. This is a separate mission entry point;
+`AUV_SIM.m` remains the baseline driver. The mission reads the saved symmetric
+dual VFR baseline and does not overwrite it. Its supervisor requires sustained
+capture before turning and before enabling aft thrust. Lateral control switches
+to a cross-track path during surge so it does not oppose oblique forward travel.
+
+```matlab
+RUN_ROLL_TURN_SURGE
+RUN_ROLL_TURN_SURGE(struct('planeDeg',-45,'headingDeg',-45))
+```
+
+`ROLL_TURN_SURGE_DEFAULTS.m` defines the finite mission and controller settings.
+See `ROLL_TURN_SURGE_FINDINGS.md` for criteria, results and limitations.
+`COMPLETE` means the cruise observation interval ended, not that the vehicle
+stopped or reached a waypoint. Existing gimbal-stop and propeller shaft-torque
+limitations remain. No automatic return to nominal roll is attempted.
+
+## Single and dual comparisons
+
+Bounded plane-pitch recovery: set `planePitchCorrection=true` in
+`RUN_ROLL_TURN_SURGE`, or run `PLANE_PITCH_CORRECTION_SWEEP` for all estimator
+cases. This extends CMG control to bounded pitch recovery after initial roll
+capture; legacy defaults and acceptance criteria are unchanged. See
+`PLANE_PITCH_CORRECTION_FINDINGS.md` for results, limits and regression checks.
+
+`INVESTIGATE_ROLL_FEASIBILITY` examines the speed-only case's sampling-sensitive
+pitch-neutral roll flag, including bounded least squares and local fine
+integration. See `ROLL_FEASIBILITY_DIAGNOSTIC_FINDINGS.md`.
+
+`EXACT_INERTIA_KNOWLEDGE_COMPARISON` compares nominal/exact allocator inertia
+on the same two unequal-inertia mission plants. See
+`EXACT_INERTIA_KNOWLEDGE_FINDINGS.md` for the diagnostic and refinement tests.
+
+To isolate full-mission speed bias versus true rotor-inertia mismatch, run
+`MISSION_ESTIMATION_ABLATION` after the original mission uncertainty sweep.
+See `MISSION_ESTIMATION_ABLATION_FINDINGS.md` for interpretation and refinement.
+
+Full-mission rotor estimation uncertainty: `MISSION_ESTIMATION_SWEEP` runs
+nominal plus eight common/opposite bias/inertia-error corners with unchanged
+roll-turn-surge control. See `MISSION_ESTIMATION_FINDINGS.md` for scope/results.
+
+Matched initial resources: `MATCHED_ENERGY_COMPARISON` tests two single/dual
+pairs with common initial spin-speed magnitude and matched total rotor mass,
+axial inertia and stored spin energy. See `MATCHED_ENERGY_FINDINGS.md` for
+remaining architecture differences and verification commands.
+
+Rotor geometry: `FLYWHEEL_GEOMETRY_SWEEP` reassembles rotor/vehicle properties
+for five solid-disk candidates against the user-supplied 5.8-inch tube envelope.
+See `FLYWHEEL_GEOMETRY_FINDINGS.md` for reproduction, demand definitions and
+the distinction between rotor-only clearance and assembled-module fit.
+
+Mechanical work/storage comparison: run `COMPARE_CMG_MECHANICAL_ENERGY` then
+`VERIFY_CMG_MECHANICAL_ENERGY`. See `CMG_MECHANICAL_ENERGY_FINDINGS.md`.
+Legacy transfer-proxy efficiency ratios are deprecated; the model does not
+yet support full motor-input or electrical-efficiency claims.
+
+Publication study plan: `IEEE_JOE_SIMULATION_MATRIX.md` defines the core
+claims, comparison cases, metrics, remaining experiments, and proposed figure
+set. It is a planning document, not a claim that pending studies are complete.
+
+Gimbal/thruster response uncertainty: run `VERIFY_ACTUATOR_UNCERTAINTY` and
+`ACTUATOR_UNCERTAINTY_SWEEP`. Plant-only lag, gain and acceleration/slew
+perturbations leave nominal controller/allocation knowledge unchanged.
+See `ACTUATOR_UNCERTAINTY_FINDINGS.md` for case definitions and scope.
+
+Installed rigid-body sensitivity: run `INSTALLED_MASS_UNCERTAINTY_SWEEP`, the
+refinement command in `INSTALLED_MASS_UNCERTAINTY_FINDINGS.md`, then
+`VERIFY_INSTALLED_MASS_RESULTS`. Nine cases compare the dual 90-degree roll
+with the full +45-degree oblique roll-turn-surge mission, varying total mass
+by +/-10% and rigid-body roll/transverse inertia by +/-20%, without retuning.
+`VERIFY_INSTALLED_MASS_UNCERTAINTY` tests the property transformation.
+These are not rotor-inertia estimation errors or buoyancy/CG-offset tests.
+See `INSTALLED_MASS_UNCERTAINTY_FINDINGS.md` for conclusions and limitations.
+
+For controller-estimation uncertainty (distinct from known physical spin/servo
+mismatch), run `CMG_ESTIMATION_UNCERTAINTY_SWEEP`. It tests five-second single
+and dual roll cases with biased speed measurements and nominal controller
+inertia estimates while retaining true rotor properties in the plant.
+See `CMG_ESTIMATION_UNCERTAINTY_FINDINGS.md` for ranges, timing failures, and
+scope. `VERIFY_CMG_ESTIMATION` checks estimator separation; the results check
+also requires `CMG_ESTIMATION_UNCERTAINTY_SWEEP(.005)`.
+
+Run `AUV_SIM` once in single mode and once in symmetric dual mode, using
+consistent case, command, duration, and installed-mass assumptions. Then run:
+
+```matlab
+COMPARE_CMG_BASELINES
+```
+
+This analysis loads the saved VFR baselines; it does not regenerate them.
+Single and dual configurations have different installed rotor masses, so a
+fair comparison means consistent mass-accounting rules, not identical masses.
+Generated results are intentionally excluded from Git and must be produced
+locally after cloning.
+
+## Model organization
+
+| File | Role |
+| --- | --- |
+| `AUV_SIM.m` | Configuration, initialization, integration, diagnostics, plots, and output |
+| `REMUS.m` | Vehicle dynamics and state derivatives |
+| `CONTROL.m`, `TORQUE.m` | Control requests and applied force/moment calculations |
+| `CMG.m`, `CMG_ALLOCATE.m` | CMG reaction moments and actuator allocation |
+| `ASSEMBLE_VEHICLE_MASS_PROPERTIES.m` | Installed rotor mass and inertia accounting |
+| `ROLL_TO_PLANE_COMMAND.m`, `ROLL_TO_PLANE_ALIGNMENT.m` | Plane command generation and alignment metrics |
+| `VORTEX_RING_THRUSTERS.m`, `THRUSTER_ALLOCATE.m` | Cycle-averaged thruster dynamics and force allocation |
+| `HYBRID_MANEUVER_CONTROL.m` | Closed-loop lateral/heading requests and thrust activation |
+
+## Verification and analysis
+
+The `VERIFY_*.m` functions check specific identities or components, including
+CMG torque signs, momentum exchange, mass assembly, steering conditioning,
+plane commands, and thruster allocation. For example:
+
+```matlab
+VERIFY_CMG_TORQUE_SIGNS
+VERIFY_CMG_MOMENTUM_EXCHANGE
+VERIFY_MASS_PROPERTY_ASSEMBLY
+VERIFY_DUAL_CMG_CONDITIONING
+VERIFY_ROLL_TO_PLANE_COMMAND
+VERIFY_VORTEX_RING_THRUSTERS
+VERIFY_THRUSTER_ALLOCATION
+```
+
+After generating a symmetric dual VFR baseline, useful scenario scripts include:
+
+```matlab
+HYBRID_COORDINATED_MANEUVER_ANALYSIS
+HYBRID_MANEUVER_SWEEP
+ROLL_TO_PLANE_ALIGNMENT_SWEEP
+DUAL_CMG_MISMATCH_SWEEP
+REPEATED_ROLL_MOMENTUM_ANALYSIS
+MOMENTUM_UNLOADING_ANALYSIS
+OBLIQUE_CMG_MOMENTUM_ENVELOPE
+OBLIQUE_PRELOAD_SHAPING_SWEEP
+```
+
+Read each script's configuration before running. Scenario scripts generally
+load the saved baseline and apply their own commands or parameter changes;
+results therefore depend on both the saved baseline and the analysis script.
+The oblique-envelope characterization saves full histories, momentum maps,
+rate-based roll-authority intervals, and a half-step sensitivity check. See
+`OBLIQUE_CMG_MOMENTUM_FINDINGS.md` for interpretation and limitations.
+The preload/shaping sweep compares fixed initial gimbal preloads with smooth
+in-plane heading references, without changing the production controllers.
+See `OBLIQUE_PRELOAD_SHAPING_FINDINGS.md`. Its candidate refinement command is
+`OBLIQUE_PRELOAD_SHAPING_SWEEP([10,20],.005)` followed by
+`VERIFY_OBLIQUE_SHAPING_RESULTS`.
+`*_ANALYSIS.m` also includes callable diagnostic helpers, so not every file
+with that suffix is a standalone script.
+
+## Scope and limitations
+
+- The model includes full vehicle pose/velocity states, finite gimbal response,
+  actuator limits, and cross-axis coupling. Hydrostatic restoring loads are
+  disabled in the current vehicle model.
+- Installed CMG mass accounting includes modeled rotors, not a fully designed
+  motor, frame, bearing, or pressure-housing assembly.
+- Current screening bounds are +/-100 degrees gimbal angle, 20 rad/s gimbal
+  rate, 500 rad/s^2 gimbal acceleration, 1800 rpm flywheel speed, and
+  500 rad/s^2 flywheel acceleration. These are assumptions, not hardware ratings.
+- The nominal dual configuration uses -15/+15 degree initial gimbal angles and
+  counter-rotating flywheels at -1200/+1200 rpm. Feasible roll control does not
+  establish arbitrary simultaneous roll/pitch authority or unlimited momentum
+  capacity near steering singularities.
+- Thruster modules provide signed, cycle-averaged body-y forces at provisional
+  fore/aft locations. Vortex formation and pulse hydrodynamics are not resolved;
+  the physical realization of bidirectional thrust remains unspecified.
+- The center-plane thrusters provide no direct roll torque. Momentum-unloading
+  studies use an abstract external roll-torque source, not these thrusters.
+- Energy accounting describes ideal mechanical work and stored rotor energy,
+  not measured electrical consumption or demonstrated electrical efficiency.
+- Large oblique hybrid turns remain unresolved. Wave rejection, sensor-based
+  feedforward, station keeping, and a full roll-turn-travel mission are not
+  established by the current baseline.
+
+The accompanying `*_FINDINGS.md`, `*_RESULTS.md`, and assumption notes record
+development history. Numerical claims may refer to older configurations;
+regenerate and check results before using them in a manuscript.
+
+## Development and reproducibility
+
+The authoritative first-draft scope/case/criteria freeze is
+`IEEE_JOE_FIRST_DRAFT_FREEZE.md`. The older simulation matrix is historical.
+Scope is frozen; publication outputs still require regeneration and traceable
+archiving after targeted cleanup. Known failures remain retained outcomes.
+
+Bounded synthetic roll-disturbance experiments are defined in
+`ROLL_DISTURBANCE_TEST_FINDINGS.md` and `ROLL_DISTURBANCE_TEST_PLAN.m`.
+`RUN_ROLL_DISTURBANCE_TESTS` runs only the verified zero-load reference by default;
+passing `true` opts into the nonzero feedback/passive comparison matrix.
+The nine-case matrix has been executed: all runs completed without recorded
+actuator-limit flags, but only one of four loaded feedback cases passed the
+predeclared tracking screen. See the findings for limits on these claims.
+`REPORT_ROLL_DISTURBANCE_TESTS` verifies the applied loads and generates the
+feedback/passive comparison figure from saved results.
+`EVALUATE_ROLL_DISTURBANCE_REJECTION` and `REPORT_ROLL_REJECTION_DIAGNOSTICS`
+provide finer-step, repeated-cycle, and constant-bias momentum diagnostics.
+See `ROLL_REJECTION_MOMENTUM_FINDINGS.md`: zero-mean excursions repeat, while a
+biased load reaches a pre-singularity diagnostic stop; sustained rejection is
+not established. Controller gains and the original tracking criteria are unchanged.
+`ROLL_DISTURBANCE_ENVELOPE.m` defines the provisional finite-duration synthetic
+load specification; `VERIFY_ROLL_DISTURBANCE_ENVELOPE` runs its nonlinear corner
+checks. Scope, momentum reserve, and bias-duration restrictions are documented
+in `ROLL_DISTURBANCE_ENVELOPE.md`. This does not change the main-driver defaults
+or turn previous outside-envelope tracking failures into passes.
+`DISTURBANCE_MISMATCH_SWEEP` applies selected rotor-estimation/inertia and
+gimbal-servo perturbations at the 15-second envelope endpoint, with both bias
+signs. It passed 11/12 cases; the nominal envelope is not yet mismatch-robust.
+See `DISTURBANCE_MISMATCH_FINDINGS.md` and its verification/refinement scripts.
+The retained unequal-inertia failure is diagnosed in
+`DISTURBANCE_INERTIA_DIAGNOSIS.md`: steering sensitivity amplifies nominal-inertia
+estimation error; an exact-knowledge same-plant diagnostic passes. Production
+controller settings and the failed-case classification are unchanged.
+`SWEEP_DISTURBANCE_INERTIA_ESTIMATES` varies allocator knowledge while holding
+the unequal-inertia plant fixed. `INERTIA_ESTIMATION_BOUNDS.md` documents a
+provisional +/-5% per-rotor calibration target supported by selected disturbed
+hold tests, not a general robust operating-envelope guarantee. Use
+`REPORT_INERTIA_ESTIMATION_BOUNDS` to verify and aggregate saved tested points.
+`ALLOCATION_SCOPE_DECISION.md` closes the conditional uncertainty-aware allocator
+item for the first bounded results package: retain the existing allocator and
+report the estimation-sensitive failures. `VERIFY_ALLOCATION_SCOPE_DECISION`
+checks the saved evidence; no new robust allocator or broader guarantee is claimed.
+
+Use Git commits to record meaningful model changes rather than suffixing copies
+of every script. For results intended for publication, record the commit ID,
+MATLAB release, configuration, solver settings, and acceptance criteria with
+the saved outputs. Keep generated figures and MAT files outside version history.
+Refresh single/dual comparisons and mismatch sweeps after baseline changes.
+
+No open-source license is granted by this repository. Select an appropriate
+license after confirming research ownership and any third-party code terms.

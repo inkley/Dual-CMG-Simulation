@@ -22,6 +22,7 @@
 clc;
 clearvars;
 close all;
+CMG_SETUP; % Repository paths only; simulation settings below are unchanged.
 
 %% USER CONFIGURATION
 cmgConfig.mode = 'dual'; % 'single' or 'dual'
